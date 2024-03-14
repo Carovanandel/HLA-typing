@@ -1,0 +1,74 @@
+- name: dry-run-vanilla
+  tags:
+    - dry-run
+  command: >
+    snakemake
+      --dryrun
+      --printshellcmds
+      --configfile tests/config.json
+      --config pepfile=tests/pep/samples.csv
+      --snakefile Snakefile
+  exit_code: 0
+  stdout:
+    contains:
+      - echo "Hello world!" > outputfile.txt
+      - sample1.txt
+      - sample2.txt
+      - sample3.txt
+      - "echo mem ref.fa tests/data/sample1_R1.fastq.gz tests/data/sample1_R2.fastq.gz"
+      # Test that the settings from the --configfile are used
+      - echo common.smk settingsfile third_setting
+    must_not_contain:
+      - rror
+  stderr:
+    must_not_contain:
+      - rror
+
+- name: dry-run-subsamples
+  tags:
+    - dry-run
+  command: >
+    snakemake
+      --dryrun
+      --printshellcmds
+      --configfile tests/config.json
+      --config pepfile=tests/pep/subsamples.csv
+      --snakefile Snakefile
+  exit_code: 0
+  stdout:
+    contains:
+      - echo "Hello world!" > outputfile.txt
+      - sample1.txt
+      - sample2.txt
+      - sample3.txt
+    contains_regex:
+      # Test if specifying multiple fastq files using subsamples is handled
+      - 'echo mem .*sample1_R1.fastq.gz .*sample2_R1.fastq.gz .*sample1_R2.fastq.gz .*sample2_R2.fastq.gz'
+    must_not_contain:
+      - rror
+  stderr:
+    must_not_contain:
+      - rror
+
+- name: dry-run-settings-command-line
+  tags:
+    - dry-run
+  command: >
+    snakemake
+      --dryrun
+      --printshellcmds
+      --configfile tests/config.json
+      --config
+      pepfile=tests/pep/samples.csv
+      setting1="command line"
+      --snakefile Snakefile
+  exit_code: 0
+  stdout:
+    contains:
+      # Test if setting1 has overwritten the default settings from the configfile
+      - echo command line settingsfile third_setting
+    must_not_contain:
+      - rror
+  stderr:
+    must_not_contain:
+      - rror

@@ -1,0 +1,4 @@
+sample_name,protocol,forward,reverse
+sample1,WGS,tests/data/sample1_R1.fastq.gz,tests/data/sample1_R2.fastq.gz
+sample2,WGS,tests/data/sample2_R1.fastq.gz,tests/data/sample2_R2.fastq.gz
+sample3,WGS,tests/data/sample3_R1.fastq.gz,tests/data/sample3_R2.fastq.gz

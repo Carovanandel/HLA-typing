@@ -1,0 +1,91 @@
+name: Continuous Integration
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 4 * * 1'
+
+defaults:
+  run:
+    # This is needed for miniconda, see:
+    # https://github.com/marketplace/actions/setup-miniconda#important.
+    shell: bash -l {0}
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test:
+          - sanity
+          - dry-run
+          - integration
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Setup Mambaforge
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        miniforge-variant: Mambaforge
+        miniforge-version: latest
+        activate-environment: HAMLET
+        use-mamba: true
+
+    # This is used to invalidate the conda environment every week
+    - name: Get week number
+      id: get-date
+      run: echo "::set-output name=week::$(/bin/date -u '+%Y-w%V')"
+      shell: bash
+
+    - name: Cache conda environment
+      id: conda-cache
+      uses: actions/cache@v2
+      env:
+        # Increase this value to manually invalidate the cache
+        CACHE_NUMBER: 0
+      with:
+        path: ${{ env.CONDA }}/envs
+        key: conda-v${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}-${{ steps.get-date.outputs.week }}
+
+    - name: Update HAMLET environment
+      run: mamba env update -n HAMLET -f environment.yml
+      if: steps.conda-cache.outputs.cache-hit != 'true'
+
+    - name: Install singularity
+      uses: eWaterCycle/setup-singularity@v6
+      with:
+        singularity-version: 3.6.4
+
+    - name: Cache singularity images
+      uses: actions/cache@v3
+      env:
+        # Increase this value to manually invalidate the cache
+        CACHE_NUMBER: 0
+      with:
+        path:
+          ~/.singularity/cache/snakemake
+        key: singularity-v${{ env.CACHE_NUMBER }}-${{ hashFiles('common.smk') }}
+
+    - name: Run test in conda evironment
+      run: >-
+        pytest --keep-workflow-wd-on-fail --tag ${{ matrix.test }}
+
+    - name: Check job stderr messages in case of failure
+      if: ${{ failure() }}
+      run: >-
+        bash -c '
+        for file in $(find /tmp/pytest_workflow_* -name log.err); do
+          echo $file; cat $file
+        done
+        '
+    - name: Check job stdout messages in case of failure
+      if: ${{ failure() }}
+      run: >-
+        bash -c '
+        for file in $(find /tmp/pytest_workflow_* -name log.out); do
+          echo $file; cat $file
+        done
+        '

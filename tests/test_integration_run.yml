@@ -1,0 +1,26 @@
+- name: integration-vanilla
+  tags:
+    - integration
+  command: >
+    snakemake
+      --printshellcmds
+      --jobs 1
+      --latency-wait 5
+      --notemp
+      --keep-incomplete
+      --use-singularity --singularity-args ' --cleanenv --bind /tmp'
+      --singularity-prefix '~/.singularity/cache/snakemake'
+      --configfile tests/config.json
+      --config pepfile=tests/pep/samples.csv
+      --snakefile Snakefile
+  stderr:
+    must_not_contain:
+      - rror
+  files:
+    - path: outputfile.txt
+      contains:
+        - Hello world!
+    - path: sample1.txt
+    - path: sample2.txt
+    - path: sample3.txt
+    - path: sample1.bam
