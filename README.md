@@ -1,15 +1,15 @@
-[![Continuous Integration](https://github.com/Redmar-van-den-Berg/snakemake-project/actions/workflows/ci.yml/badge.svg)](https://github.com/Redmar-van-den-Berg/snakemake-project/actions/workflows/ci.yml)
+[![Continuous Integration](https://github.com/Carovanandel/HLA-typing/actions/workflows/ci.yml/badge.svg)](https://github.com/Carovanandel/HLA-typing/actions/workflows/ci.yml)
 [![PEP compatible](http://pepkit.github.io/img/PEP-compatible-green.svg)](http://pep.databio.org)
-![GitHub release](https://img.shields.io/github/v/release/redmar-van-den-berg/snakemake-project)
-![Commits since latest release](https://img.shields.io/github/commits-since/redmar-van-den-berg/snakemake-project/latest)
+![GitHub release](https://img.shields.io/github/v/release/Carovanandel/HLA-typing)
+![Commits since latest release](https://img.shields.io/github/commits-since/Carovanandel/HLA-typing/latest)
 
-# snakemake-project
+# HLA-typing
 Example of a snakemake project
 
 ## Installation
 Download the repository from github
 ```bash
-git clone https://github.com/Redmar-van-den-Berg/snakemake-project.git
+git clone https://github.com/Carovanandel/HLA-typing.git
 ```
 
 Install and activate the
@@ -17,7 +17,7 @@ Install and activate the
 environment.
 ```bash
 conda env create --file environment.yml
-conda activate snakemake-project
+conda activate HLA-typing
 ```
 
 ## Settings
