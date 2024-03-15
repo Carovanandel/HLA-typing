@@ -6,66 +6,32 @@ pepfile: config["pepfile"]
 
 rule all:
     input:
-        outfile=get_outfile(),
-        samples=expand("{sample}.txt", sample=pep.sample_table["sample_name"]),
-        bams=expand("{sample}.bam", sample=pep.sample_table["sample_name"]),
-        settings="settings.txt",
+        T1K=expand(
+            "{sample}/T1K/{sample}_allele.tsv", sample=pep.sample_table["sample_name"]
+        ),
 
 
-rule example:
-    output:
-        get_outfile(),
-    log:
-        "log/stdout.txt",
-    container:
-        containers["debian"]
-    shell:
-        """
-        echo "Hello world!" > {output} 2> {log}
-        """
-
-
-rule sample:
-    output:
-        "{sample}.txt",
-    log:
-        "log/{sample}_touch.txt",
-    container:
-        containers["debian"]
-    shell:
-        """
-        touch {output} 2> {log}
-        """
-
-
-rule map:
+rule T1K:
     input:
         f=get_forward,
         r=get_reverse,
+        reference=config["T1K_fasta"],
     output:
-        "{sample}.bam",
+        allele="{sample}/T1K/sample1_allele.tsv",
+        genotype="{sample}/T1K/sample1_genotype.tsv",
     log:
-        "log/{sample}_map.txt",
+        "log/{sample}.T1K.txt",
     container:
-        containers["debian"]
+        containers["T1K"]
+    threads: 1
     shell:
         """
-        echo mem ref.fa {input.f} {input.r} > {output}
-        """
-
-
-rule settings:
-    output:
-        "settings.txt",
-    params:
-        s1=config["setting1"],
-        s2=config["setting2"],
-        s3=config["setting3"],
-    log:
-        "log/settings.txt",
-    container:
-        containers["debian"]
-    shell:
-        """
-        echo {params.s1} {params.s2} {params.s3} > {output}
+        run-t1k \
+            -1 {input.f} \
+            -2 {input.r} \
+            -o {wildcards.sample} \
+            --od $(dirname {output.allele}) \
+            -t {threads} \
+            --preset hla \
+            -f {input.reference} 2> {log}
         """

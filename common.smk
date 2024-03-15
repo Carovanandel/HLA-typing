@@ -1,4 +1,6 @@
-containers = {"debian": "docker://debian:latest"}
+containers = {
+    "T1K": "docker://quay.io/biocontainers/t1k:1.0.5--h43eeafb_0",
+}
 
 
 def get_outfile():

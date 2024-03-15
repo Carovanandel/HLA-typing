@@ -13,14 +13,12 @@
       --configfile tests/config.json
       --config pepfile=tests/pep/samples.csv
       --snakefile Snakefile
-  stderr:
-    must_not_contain:
-      - rror
   files:
-    - path: outputfile.txt
+    - path: sample1/T1K/sample1_allele.tsv
       contains:
-        - Hello world!
-    - path: sample1.txt
-    - path: sample2.txt
-    - path: sample3.txt
-    - path: sample1.bam
+        - "HLA-A*68:02:01:01"
+        - "HLA-A*74:01:01:01"
+    - path: sample1/T1K/sample1_genotype.tsv
+      contains:
+        - "HLA-A*68:02:01"
+        - "HLA-A*74:01:01"

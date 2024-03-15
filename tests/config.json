@@ -1,5 +1,3 @@
 {
-  "setting1": "common.smk",
-  "setting2": "settingsfile",
-  "setting3": "third_setting"
+  "T1K_fasta": "tests/data/hlaidx_rna_seq.fa"
 }
