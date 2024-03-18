@@ -11,5 +11,7 @@
   stdout:
     contains:
       - rule T1K
+      - rule seq2hla
     contains_regex:
       - "run-t1k .* -f tests/data/hlaidx_rna_seq.fa"
+      - "seq2HLA .*"

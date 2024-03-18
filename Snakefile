@@ -9,6 +9,9 @@ rule all:
         T1K=expand(
             "{sample}/T1K/{sample}_allele.tsv", sample=pep.sample_table["sample_name"]
         ),
+        seq2HLA=expand(
+            "{sample}/seq2hla/{sample}-ClassI-class.HLAgenotype4digits", sample=pep.sample_table["sample_name"]
+        ),
 
 
 rule T1K:
@@ -34,4 +37,24 @@ rule T1K:
             -t {threads} \
             --preset hla \
             -f {input.reference} 2> {log}
+        """
+
+rule seq2hla:
+    input:
+        f=get_forward,
+        r=get_reverse,
+    output:
+        classI_4digits="{sample}/seq2hla/{sample}-ClassI-class.HLAgenotype4digits", 
+        ambiguity="{sample}/seq2hla/{sample}.ambiguity",
+    log:
+        "log/{sample}.seq2hla.txt",
+    container:
+        containers["seq2hla"]
+    threads: 1
+    shell:
+        """
+        seq2HLA \
+        -1 {input.f} \
+        -2 {input.r} \
+        -r $(dirname {output.classI_4digits})/{wildcards.sample} 2> {log}
         """
