@@ -7,10 +7,15 @@ pepfile: config["pepfile"]
 rule all:
     input:
         T1K=expand(
-            "output/{sample}/T1K/{sample}_allele.tsv", sample=pep.sample_table["sample_name"]
+            "output/{sample}/T1K/{sample}_allele.tsv",
+            sample=pep.sample_table["sample_name"],
         ),
-        seq2HLA=expand(
+        seq2hla=expand(
             "output/{sample}/seq2hla/{sample}-ClassI-class.HLAgenotype4digits",
+            sample=pep.sample_table["sample_name"],
+        ),
+        arcashla=expand(
+            "output/{sample}/arcashla/{sample}.genotype.json",
             sample=pep.sample_table["sample_name"],
         ),
 
@@ -59,4 +64,28 @@ rule seq2hla:
         -1 {input.f} \
         -2 {input.r} \
         -r $(dirname {output.classI_4digits})/{wildcards.sample} 2> {log}
+        """
+
+
+rule arcashla:
+    input:
+        f=get_forward,
+        r=get_reverse,
+    output:
+        genotype="output/{sample}/arcashla/{sample}.genotype.json",
+    log:
+        "output/log/{sample}.arcashla.txt",
+    container:
+        containers["arcashla"]
+    threads: 1
+    shell:
+        """
+        arcasHLA genotype \
+        {input.f} \
+        {input.r} \
+        --genes A,B,C \
+        --outdir $(dirname {output.genotype})/{wildcards.sample} \
+        --threads {threads} \
+        --verbose \
+        --log {log}
         """
