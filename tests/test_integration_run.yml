@@ -14,11 +14,15 @@
       --config pepfile=tests/pep/samples.csv
       --snakefile Snakefile
   files:
-    - path: sample1/T1K/sample1_allele.tsv
+    - path: output/sample1/T1K/sample1_allele.tsv
       contains:
         - "HLA-A*68:02:01:01"
         - "HLA-A*74:01:01:01"
-    - path: sample1/T1K/sample1_genotype.tsv
+    - path: output/sample1/T1K/sample1_genotype.tsv
       contains:
         - "HLA-A*68:02:01"
         - "HLA-A*74:01:01"
+    - path: output/sample1/seq2hla/sample1-ClassI-class.HLAgenotype4digits
+      contains:
+        - "A*68:02"
+        - "A*74:01"

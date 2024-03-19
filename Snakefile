@@ -7,10 +7,10 @@ pepfile: config["pepfile"]
 rule all:
     input:
         T1K=expand(
-            "{sample}/T1K/{sample}_allele.tsv", sample=pep.sample_table["sample_name"]
+            "output/{sample}/T1K/{sample}_allele.tsv", sample=pep.sample_table["sample_name"]
         ),
         seq2HLA=expand(
-            "{sample}/seq2hla/{sample}-ClassI-class.HLAgenotype4digits",
+            "output/{sample}/seq2hla/{sample}-ClassI-class.HLAgenotype4digits",
             sample=pep.sample_table["sample_name"],
         ),
 
@@ -21,10 +21,10 @@ rule T1K:
         r=get_reverse,
         reference=config["T1K_fasta"],
     output:
-        allele="{sample}/T1K/sample1_allele.tsv",
-        genotype="{sample}/T1K/sample1_genotype.tsv",
+        allele="output/{sample}/T1K/sample1_allele.tsv",
+        genotype="output/{sample}/T1K/sample1_genotype.tsv",
     log:
-        "log/{sample}.T1K.txt",
+        "output/log/{sample}.T1K.txt",
     container:
         containers["T1K"]
     threads: 1
@@ -46,10 +46,10 @@ rule seq2hla:
         f=get_forward,
         r=get_reverse,
     output:
-        classI_4digits="{sample}/seq2hla/{sample}-ClassI-class.HLAgenotype4digits",
-        ambiguity="{sample}/seq2hla/{sample}.ambiguity",
+        classI_4digits="output/{sample}/seq2hla/{sample}-ClassI-class.HLAgenotype4digits",
+        ambiguity="output/{sample}/seq2hla/{sample}.ambiguity",
     log:
-        "log/{sample}.seq2hla.txt",
+        "output/log/{sample}.seq2hla.txt",
     container:
         containers["seq2hla"]
     threads: 1
