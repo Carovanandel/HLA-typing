@@ -14,18 +14,16 @@ rule all:
             "output/{sample}/seq2hla/{sample}-ClassI-class.HLAgenotype4digits",
             sample=pep.sample_table["sample_name"],
         ),
-
-
 #        arcashla=expand(
 #            "output/{sample}/arcashla/{sample}.genotype.json",
 #            sample=pep.sample_table["sample_name"],
 #        ),
-optitype = (
-    expand(
-        "output/{sample}/optitype/{sample}.csv",
-        sample=pep.sample_table["sample_name"],
-    ),
-)
+        optitype = (
+            expand(
+                "output/{sample}/optitype/{sample}.csv",
+                sample=pep.sample_table["sample_name"],
+            ),
+        )
 
 
 rule T1K:
@@ -112,7 +110,7 @@ rule optitype:
     threads: 1
     shell:
         """
-        OptiType \
+        OptiTypePipeline.py \
         --input {input.f} {input.r} \
         --rna \
         --outdir $(dirname {output.genotype}) \
