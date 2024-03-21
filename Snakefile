@@ -18,10 +18,10 @@ rule all:
 #            "output/{sample}/arcashla/{sample}.genotype.json",
 #            sample=pep.sample_table["sample_name"],
 #        ),
-        optitype=expand(
-                "output/{sample}/optitype/{sample}.csv",
-                sample=pep.sample_table["sample_name"],
-            ),
+#        optitype=expand(
+#                "output/{sample}/optitype/{sample}.csv",
+#                sample=pep.sample_table["sample_name"],
+#            ),
 
 
 rule T1K:
@@ -91,7 +91,7 @@ rule arcashla:
         --outdir $(dirname {output.genotype}) \
         --threads {threads} \
         --verbose \
-        --log {log} 2> {log}
+        --log {log}
         """
 
 
