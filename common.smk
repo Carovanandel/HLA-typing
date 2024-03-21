@@ -1,7 +1,7 @@
 containers = {
     "T1K": "docker://quay.io/biocontainers/t1k:1.0.5--h43eeafb_0",
     "seq2hla": "docker://quay.io/biocontainers/seq2hla:2.3--hdfd78af_1",
-    "arcashla": "docker://biocontainers/arcas-hla:0.6.0--hdfd78af_0",
+    "arcashla": "docker://quay.io/biocontainers/arcas-hla:0.6.0--hdfd78af_0",
     "optitype": "docker://quay.io/biocontainers/optitype:1.3.5--hdfd78af_2",
 }
 
