@@ -21,7 +21,7 @@ rule all:
 #            sample=pep.sample_table["sample_name"],
 #        ),
 #        optitype=expand(
-#                "output/{sample}/optitype/{sample}.csv",
+#                "output/{sample}/optitype/{sample}.tsv",
 #                sample=pep.sample_table["sample_name"],
 #            ),
 
@@ -102,7 +102,7 @@ rule optitype:
         f=get_forward,
         r=get_reverse,
     output:
-        genotype="output/{sample}/optitype/{sample}.csv",
+        genotype="output/{sample}/optitype/{sample}.tsv",
     log:
         "output/log/{sample}.optitype.txt",
     container:
@@ -115,4 +115,5 @@ rule optitype:
         --rna \
         --outdir $(dirname {output.genotype}) \
         --verbose 2> {log}
+        mv output/{wildcars.sample}/optitype/*/*result.tsv {output.genotype}
         """
