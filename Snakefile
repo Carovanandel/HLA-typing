@@ -115,5 +115,5 @@ rule optitype:
         --rna \
         --outdir $(dirname {output.genotype}) \
         --verbose 2> {log}
-        mv output/{wildcars.sample}/optitype/*/*result.tsv {output.genotype}
+        mv output/{wildcards.sample}/optitype/*/*result.tsv {output.genotype}
         """
