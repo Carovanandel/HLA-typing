@@ -14,6 +14,8 @@ rule all:
             "output/{sample}/seq2hla/{sample}-ClassI-class.HLAgenotype4digits",
             sample=pep.sample_table["sample_name"],
         ),
+
+
 #        arcashla=expand(
 #            "output/{sample}/arcashla/{sample}.genotype.json",
 #            sample=pep.sample_table["sample_name"],
