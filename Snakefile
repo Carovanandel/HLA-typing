@@ -32,8 +32,8 @@ rule T1K:
         r=get_reverse,
         reference=config["T1K_fasta"],
     output:
-        allele="output/{sample}/T1K/sample1_allele.tsv",
-        genotype="output/{sample}/T1K/sample1_genotype.tsv",
+        allele="output/{sample}/T1K/{sample}_allele.tsv",
+        genotype="output/{sample}/T1K/{sample}_genotype.tsv",
     log:
         "output/log/{sample}.T1K.txt",
     container:
