@@ -2,11 +2,13 @@
 import re
 
 class HLA:
+    #initiate hla class
     def __init__(self, gene, allele = None, protein = None):
         self.gene = gene
         self.allele = allele
         self.protein = protein
 
+    #represent hla as string
     def __str__(self):
         s = f"HLA-{self.gene}"
         if self.allele is not None:
@@ -17,9 +19,11 @@ class HLA:
 
         return s
 
+    #repr() calls str()
     def __repr__(self):
         return str(self)
 
+    #define the == operator behavior for hla class objects
     def __eq__(self, other):
         return all((
             self.gene == other.gene,
@@ -27,8 +31,11 @@ class HLA:
             self.protein == other.protein,
         ))
 
+    #create hla class object from string
     @classmethod
     def from_str(cls, hla):
+        if hla == '0': 
+            return hla  #return '0' back if no allele is called
         assert hla.startswith("HLA-"), "Please use full HLA nomenclature"
         pattern = "HLA-(\\w+)(\\*\\d+)?(:\\d+)?"
         m = re.match(pattern, hla)

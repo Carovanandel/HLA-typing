@@ -1,0 +1,4 @@
+sample_name,HLA-A,HLA-A (2)
+sample1,HLA-A*01:01,0
+sample2,HLA-A*04:01,HLA-A*04:02
+sample3,HLA-A*01:01,HLA-A*03:01 

@@ -1,7 +1,7 @@
 from HLA import HLA
 import pytest
 
-
+#test class initialization
 def test_HLA():
     hla = HLA('A', '01')
 
@@ -11,7 +11,7 @@ def test_HLA():
 
     assert str(hla) == "HLA-A*01"
 
-
+#test __eq__ 
 identical = [
     (HLA('A', '01'), HLA('B', '01'), False),
     (HLA('A', '01'), HLA('A', '01'), True),
@@ -24,7 +24,7 @@ identical = [
 def test_HLA_identical(x, y, expected):
     assert (x == y) == expected
 
-
+#test string representation with str()
 as_str = [
     (HLA('A'), "HLA-A"),
     (HLA('A', '01'), "HLA-A*01"),
@@ -34,12 +34,13 @@ as_str = [
 def test_print(hla, expected):
     assert str(hla) == expected
 
-
+#tests from_str method to create a class object from a string
 from_str = [
     ("HLA-A", HLA("A")),
     ("HLA-ABCDE", HLA("ABCDE")),
     ("HLA-A*10", HLA("A", "10")),
     ("HLA-A*02:101", HLA("A", "02", "101")),
+    ("0", "0"),
 ]
 @pytest.mark.parametrize("string, hla", from_str)
 def test_hla_from_string(string, hla):
