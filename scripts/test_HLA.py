@@ -40,9 +40,25 @@ from_str = [
     ("HLA-ABCDE", HLA("ABCDE")),
     ("HLA-A*10", HLA("A", "10")),
     ("HLA-A*02:101", HLA("A", "02", "101")),
-    ("0", "0"),
+    ("0", HLA(None)),
 ]
 @pytest.mark.parametrize("string, hla", from_str)
 def test_hla_from_string(string, hla):
     assert HLA.from_str(string) == hla
     assert str(hla) == string
+
+match = [
+    (HLA('A', '01'), HLA('A', '01'), 2, True),
+    (HLA('A', '01', '01'), HLA('A', '01', '01'), 2, True),
+    (HLA('A', '01', '01'), HLA('A', '01', '02'), 2, False),
+    (HLA('A', '01', '01'), HLA('A', '01'), 2, False),
+    (HLA('A', '01'), HLA('A', '01', '01'), 2, True),
+    (HLA('A', '01'), HLA('A', '01', '01'), 1, False),
+    (HLA(None), HLA('A', '01', '01'), 2, False),
+    (HLA(None), HLA(None), 1, True),
+    (HLA(None), HLA(None), 2, True),
+]
+
+@pytest.mark.parametrize("hla, hla2, method, expected", match)
+def test_match(hla, hla2, method, expected):
+    assert hla.match(hla2, method) == expected

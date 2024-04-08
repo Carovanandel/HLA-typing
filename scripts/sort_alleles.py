@@ -12,7 +12,8 @@ df = pd.read_csv(input_file)
 
 #function to sort pairs of alleles
 def sort_allele_pair(row):
-    hla_genes = ['HLA-A']  #add more HLA genes here
+    hla_genes = ['HLA-A', 'HLA-B', 'HLA-C', 'HLA-DRB1', 'HLA-DRB3', 'HLA-DRB4',
+    'HLA-DRB5', 'HLA-DQA1', 'HLA-DQB1', 'HLA-DPB1']  
     for gene in hla_genes:
         alleles = [f'{gene}', f'{gene} (2)']
         row[alleles] = sorted(row[alleles])
