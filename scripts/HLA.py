@@ -56,6 +56,7 @@ class HLA:
     #method == 1 --> HLA-types must be identical
     #method == 2 --> If hla1 does not have a protein field, hla2 is allowed to have anything in the protein field
     def match(self, other, method):
+        assert method == 1 or method == 2, 'method has to be 1 (identical) or 2 (resolution ambiguity allowed)'
         if method == 1: #HLA-types must be identical
             if self == other: return True
             else: return False
