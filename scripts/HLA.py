@@ -38,6 +38,22 @@ class HLA:
     def from_str(cls, hla):
         if hla == '0': 
             return HLA(None) # return empty HLA class for 0 allele
+        if '/' in hla:  #return list for multiple options (in lab result, tool results must only give top option)
+            hla_options = hla.split('/')
+            hla_list = []
+            for option in hla_options:
+                assert option.startswith("HLA-"), "Please use full HLA nomenclature"
+                pattern = "HLA-(\\w+)(\\*\\d+)?(:\\d+)?"
+                m = re.match(pattern, option)
+                gene = m.group(1)
+                allele = m.group(2)
+                protein = m.group(3)
+                 # Remember to cut off the *
+                allele = allele[1:] if allele else None
+                # Remember to cut off the colon
+                protein = protein[1:] if protein else None
+                hla_list.append(HLA(gene, allele, protein))
+            return hla_list
         assert hla.startswith("HLA-"), "Please use full HLA nomenclature"
         pattern = "HLA-(\\w+)(\\*\\d+)?(:\\d+)?"
         m = re.match(pattern, hla)
