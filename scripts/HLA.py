@@ -79,7 +79,7 @@ class HLA:
         if method == 2: #only if hla1 has a protein field, hla2 has to match
             if self.gene != other.gene or self.allele != other.allele:
                 return False
-            if self.protein != None and self.protein != other.protein:
+            if self.protein != None and other.protein != None and self.protein != other.protein:
                 return False
             else: return True
     
