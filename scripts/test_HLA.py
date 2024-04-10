@@ -62,3 +62,4 @@ match = [
 @pytest.mark.parametrize("hla, hla2, method, expected", match)
 def test_match(hla, hla2, method, expected):
     assert hla.match(hla2, method) == expected
+    assert hla2.match(hla, method) == expected
