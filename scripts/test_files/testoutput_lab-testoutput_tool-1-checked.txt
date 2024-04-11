@@ -1,0 +1,16 @@
+matching method used: 1
+
+Genes that are being matched: HLA-A, HLA-B, HLA-C, HLA-DRB1, HLA-DRB3, HLA-DRB4, HLA-DRB5, HLA-DQA1, HLA-DQB1, HLA-DPB1
+
+sample1 - HLA-A: No match - HLA-A*01:01/HLA-A*01:02 vs HLA-A*01:03
+sample1 - HLA-A (2): No match - HLA-A*26 vs HLA-A*26:01
+sample1 - HLA-DRB3 (2): No match - HLA-DRB3*02 vs HLA-DRB3*02:02
+sample2 - HLA-A (2): No match - HLA-A*01 vs HLA-A*01:02
+sample2 - HLA-B: No match - HLA-B*45:03/HLA-B*44 vs HLA-B*44:03
+sample2 - HLA-DRB1 (2): No match - HLA-DRB1*15 vs HLA-DRB1*15:01
+sample2 - HLA-DQB1 (2): No match - HLA-DQB1*06 vs HLA-DQB1*06:01
+sample3 - HLA-B (2): No match - HLA-B*08 vs HLA-B*08:01
+sample3 - HLA-DRB4 (2): No match - HLA-DRB4*13 vs HLA-DRB4*13:02
+sample3 - HLA-DQB1 (2): No match - HLA-DQB1*06 vs HLA-DQB1*06:04
+
+Percentage of genes that match: 70.0%

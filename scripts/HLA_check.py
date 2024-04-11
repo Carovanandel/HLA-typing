@@ -2,35 +2,43 @@ from HLA import HLA
 import csv
 import sys
 
-### Usage: HLA_check.py path/to/file1.csv path/to/file2.csv method(1 or 2) [optional: add 'mini' argument for only HLA-A tests]
+### Usage: HLA_check.py path/to/file1.csv path/to/file2.csv method(1 or 2) genes(e.g. A,B,C)
 
 #check that paths to the csv files have been provided as arguments in the command line
-assert len(sys.argv) > 3, 'Provide paths to the csv files and matching method [1 (identical) or 2 (resolution ambiguity allowed)]' 
+assert len(sys.argv) > 4, 'Provide paths to the csv files, matching method [1 or 2] and genes to be matched (e.g. A,B,C)' 
+assert sys.argv[3] == '1' or sys.argv[3] == '2', 'Matching method has to be 1 or 2'
 file1 = sys.argv[1]
 file2 = sys.argv[2]
 method = int(sys.argv[3])
 
-#create output txt file name
-output_file = ''
+#check that the input files have gone through sort_alleles.py first
+assert '_sorted.csv' in file1 and '_sorted.csv' in file2, 'Warning: did not detect "sorted_csv" in file names. Input files have to be sorted first using sort_alleles.py'
+
+#create output txt file 
+output_file = '' #create txt file name
 for path in [file1, file2]:
     file = path.split('/')[-1] #get file name (with _sorted.csv)
     name = '_'.join(file.split('_')[0:-1]) #remove _sorted.csv
     output_file += f'{name}-'
 output_file += f'{method}-checked.txt'
-
 f = open(output_file, 'w')
 f.write(f"matching method used: {method}\n\n")
 
-#header that the csv files need to have:
-if len(sys.argv) > 4: #if the optional extra argument (mini) has been added, check only HLA-A 
-    header = ['sample_name', 'HLA-A', 'HLA-A (2)']
-    print('Attention: using mini version, only HLA-A is being matched')
-    f.write('Attention: using mini version, only HLA-A is being matched'+'\n \n')
-else:
-    header = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HLA-C', 'HLA-C (2)',
-        'HLA-DRB1', 'HLA-DRB1 (2)', 'HLA-DRB3', 'HLA-DRB3 (2)', 'HLA-DRB4', 'HLA-DRB4 (2)',
-        'HLA-DRB5', 'HLA-DRB5 (2)', 'HLA-DQA1', 'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)',
-        'HLA-DPB1', 'HLA-DPB1 (2)']
+#genes that need to be checked:
+genes = sys.argv[4]
+genes_list = genes.split(',')
+#header that input csv files need to have
+header = ['sample_name'] 
+for gene in genes_list:
+    header.append(f'HLA-{gene}')
+    header.append(f'HLA-{gene} (2)')
+#genes that need to be checked
+hla_genes = []
+for gene in genes_list:
+    hla_genes.append(f'HLA-{gene}')
+
+print(f'Genes that are being matched: {", ".join(hla_genes)}')
+f.write(f'Genes that are being matched: {", ".join(hla_genes)}\n\n')
 
 #csv file 1
 path_test = file1
@@ -49,13 +57,6 @@ output2_rows = list(reader_test2)
 
 #check both csv files have the same amount of samples
 assert len(output_rows) == len(output2_rows), "csv files have different amount of samples"
-
-#genes that need to be checked
-if len(sys.argv) > 4: #if the optional extra argument (mini) has been added, check only HLA-A 
-    hla_genes = ['HLA-A']
-else: 
-    hla_genes = ['HLA-A', 'HLA-B', 'HLA-C', 'HLA-DRB1', 'HLA-DRB3', 'HLA-DRB4',
-                'HLA-DRB5', 'HLA-DQA1', 'HLA-DQB1', 'HLA-DPB1'] 
 
 #check if genes match (assumes alleles are in alfabetical order, use sort_alleles.py first)
 gene_score = 0
