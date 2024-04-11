@@ -41,6 +41,13 @@ from_str = [
     ("HLA-A*10", HLA("A", "10")),
     ("HLA-A*02:101", HLA("A", "02", "101")),
     ("0", HLA(None)),
+    ("HLA-DRB1", HLA("DRB1")),
+    ("HLA-DRB1*13:01:01:02", HLA("DRB1", "13", "01", "01", "02")),
+    ("HLA-A*24:09N", HLA(gene="A", allele="24", protein="09", suffix="N")),
+    ("HLA-A*30:14L", HLA(gene="A", allele="30", protein="14", suffix="L")),
+    ("HLA-A*24:02:01:02L", HLA(gene="A", allele="24", protein="02", synonymous="01", noncoding="02", suffix="L")),
+    ("HLA-B*44:02:01:02S", HLA(gene="B", allele="44", protein="02", synonymous="01", noncoding="02", suffix="S")),
+    ("HLA-A*32:11Q", HLA(gene="A", allele="32", protein="11", suffix="Q")),
 ]
 @pytest.mark.parametrize("string, hla", from_str)
 def test_hla_from_string(string, hla):

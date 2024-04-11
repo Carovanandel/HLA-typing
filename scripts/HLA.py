@@ -3,10 +3,13 @@ import re
 
 class HLA:
     #initiate hla class
-    def __init__(self, gene, allele = None, protein = None):
+    def __init__(self, gene, allele = None, protein = None, synonymous = None, noncoding=None, suffix = None):
         self.gene = gene
         self.allele = allele
         self.protein = protein
+        self.synonymous = synonymous
+        self.noncoding = noncoding
+        self.suffix = suffix
 
     #represent hla as string
     def __str__(self):
@@ -19,6 +22,12 @@ class HLA:
         if self.protein is not None:
             s += f":{self.protein}"
 
+        if self.synonymous is not None:
+            s += f":{self.synonymous}"
+        if self.noncoding is not None:
+            s += f":{self.noncoding}"
+        if self.suffix is not None:
+            s += self.suffix
         return s
 
     #repr() calls str()
@@ -36,6 +45,8 @@ class HLA:
     #create hla class object from string
     @classmethod
     def from_str(cls, hla):
+        # HLA-DRB1*13:01:01:02Q
+        pattern = r"^HLA-(\w+)(\*\d+)?(:\d+)?(:\d+)?(:\d+)?([LSCAQN])?$"
         if hla == '0': 
             return HLA(None) # return empty HLA class for 0 allele
         if '/' in hla:  #return list for multiple options (in lab result, tool results must only give top option)
@@ -43,7 +54,6 @@ class HLA:
             hla_list = []
             for option in hla_options:
                 assert option.startswith("HLA-"), "Please use full HLA nomenclature"
-                pattern = "HLA-(\\w+)(\\*\\d+)?(:\\d+)?"
                 m = re.match(pattern, option)
                 gene = m.group(1)
                 allele = m.group(2)
@@ -55,18 +65,20 @@ class HLA:
                 hla_list.append(HLA(gene, allele, protein))
             return hla_list
         assert hla.startswith("HLA-"), "Please use full HLA nomenclature"
-        pattern = "HLA-(\\w+)(\\*\\d+)?(:\\d+)?"
         m = re.match(pattern, hla)
         gene = m.group(1)
         allele = m.group(2)
         protein = m.group(3)
+        synonymous = m.group(4)
+        noncoding = m.group(5)
+        suffix = m.group(6)
 
         # Remember to cut off the *
         allele = allele[1:] if allele else None
         # Remember to cut off the colon
         protein = protein[1:] if protein else None
 
-        return HLA(gene, allele, protein)
+        return HLA(gene, allele, protein, synonymous, noncoding, suffix)
     
     #testing if two hla-types match
     #method == 1 --> HLA-types must be identical
@@ -82,4 +94,3 @@ class HLA:
             if self.protein != None and other.protein != None and self.protein != other.protein:
                 return False
             else: return True
-    
