@@ -1,20 +1,23 @@
 import pandas as pd
 import sys
 
-#Usage: sort_alleles.py path/to/input.csv [optional: add 'mini' argument for only HLA-A tests]
+#Usage: sort_alleles.py path/to/input.csv genes(e.g. A,B,C)
 
-#check that a path has been provided as an argument in the command line
-assert len(sys.argv) > 1, 'Provide a path to the input csv file' 
+#check that a path has been provided as an argument in the command line and genes have been specified
+assert len(sys.argv) > 2, 'Provide a path to the input csv file and genes to be sorted (e.g. A,B,C)' 
 
 input_file = sys.argv[1] #use command line argument as the input csv path
 
 df = pd.read_csv(input_file)
 
-if len(sys.argv) > 2: #check if the optional extra argument (mini) has been added for only HLA-A tests
-    hla_genes = ['HLA-A']
-    print('Attention: using mini version, only HLA-A is being sorted')
-else: hla_genes = ['HLA-A', 'HLA-B', 'HLA-C', 'HLA-DRB1', 'HLA-DRB3', 'HLA-DRB4',
-                   'HLA-DRB5', 'HLA-DQA1', 'HLA-DQB1', 'HLA-DPB1']  
+#create list of genes that need to be sorted (specified in command prompt)
+genes = sys.argv[2]
+genes_list = genes.split(',')
+hla_genes = []
+for gene in genes_list:
+    hla_genes.append(f'HLA-{gene}')
+
+print(f'Genes that are being sorted: {", ".join(hla_genes)}')
 
 #function to sort pairs of alleles
 def sort_allele_pair(row):

@@ -1,5 +1,0 @@
-matching method used: 2
-
-sample1 - HLA-A: No match - HLA-A*01:01/HLA-A*01:02 vs HLA-A*01:03
-
-Percentage of genes that match: 96.67%
