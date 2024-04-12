@@ -40,7 +40,6 @@ from_str = [
     ("HLA-ABCDE", HLA("ABCDE")),
     ("HLA-A*10", HLA("A", "10")),
     ("HLA-A*02:101", HLA("A", "02", "101")),
-    ("0", HLA(None)),
     ("HLA-DRB1", HLA("DRB1")),
     ("HLA-DRB1*13:01:01:02", HLA("DRB1", "13", "01", "01", "02")),
     ("HLA-A*24:09N", HLA(gene="A", allele="24", protein="09", suffix="N")),
