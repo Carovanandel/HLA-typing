@@ -12,7 +12,9 @@ df = pd.read_csv(input_file)
 
 #create list of genes that need to be sorted (specified in command prompt)
 genes = sys.argv[2]
-genes_list = genes.split(',')
+if genes == 'all': #for ease of use
+    genes_list = ['A','B','C','DRB1','DRB3','DRB4','DRB5','DQA1','DQB1','DPB1']
+else: genes_list = genes.split(',')
 hla_genes = []
 for gene in genes_list:
     hla_genes.append(f'HLA-{gene}')
