@@ -11,14 +11,11 @@ file1 = sys.argv[1]
 file2 = sys.argv[2]
 method = int(sys.argv[3])
 
-#check that the input files have gone through sort_alleles.py first
-assert '_sorted.csv' in file1 and '_sorted.csv' in file2, 'Warning: did not detect "sorted_csv" in file names. Input files have to be sorted first using sort_alleles.py'
-
 #create output txt file 
 output_file = '' #create txt file name
 for path in [file1, file2]:
     file = path.split('/')[-1] #get file name (with _sorted.csv)
-    name = '_'.join(file.split('_')[0:-1]) #remove _sorted.csv
+    name = '.'.join(file.split('.')[0:-1]) #.csv
     output_file += f'{name}-'
 output_file += f'{method}-checked.txt'
 f = open(output_file, 'w')
@@ -60,46 +57,72 @@ output2_rows = list(reader_test2)
 #check both csv files have the same amount of samples
 assert len(output_rows) == len(output2_rows), "csv files have different amount of samples"
 
-#function that returns lists of hla class opbjects from both files for a specified sample and allele
-def get_hla_class(sample, allele):
-    #get hla1
-    hla = []
-    hla_options = output_rows[sample][allele].split('/') #multiple HLA-type options are separated by /
-    for option in hla_options:
-        if option == '0': hla.append(HLA(None)) #get empty HLA class for 0 allele
-        else: hla.append(HLA.from_str(option))
-    #get hla2
-    hla2 = []
-    hla_options = output2_rows[sample][allele].split('/')
-    for option in hla_options:
-        if option == '0': hla2.append(HLA(None)) #get empty HLA class for 0 allele
-        else: hla2.append(HLA.from_str(option))
-    return hla, hla2
+#function that returns a list of hla class objects from a string
+def list_to_hla(options):
+    for option in options.split('/'):
+        return [HLA(None) if option == '0' else HLA.from_str(option)]
+    
+#function that uses list_to_hla to get hla class lists of both alleles for both files
+def get_hla_class(sample, gene):
+    hla1_1 = list_to_hla(output_rows[sample][gene])
+    hla1_2 = list_to_hla(output_rows[sample][f'{gene} (2)'])
+    hla2_1 = list_to_hla(output2_rows[sample][gene])
+    hla2_2 = list_to_hla(output2_rows[sample][f'{gene} (2)'])
+    return hla1_1, hla1_2, hla2_1, hla2_2
 
-#function that will test the match between two lists of hla-types
-def check_match(hla, hla2, allele_score):
-    allele_score_before = allele_score
-    for option in hla:
-        for option2 in hla2:
-            if option.match(option2, method) == True: #use matching method specified in command prompt
-                allele_score +=1
-    if allele_score == allele_score_before: #if none of the allele options matched, print the no match message
-        f.write(output_rows[i]['sample_name'] + ' - ' + allele + ': No match - ' + output_rows[i][allele] + ' vs ' + output2_rows[i][allele] + '\n')
+#function that will test the match of hla alleles
+def check_match(hla1_1, hla1_2, hla2_1, hla2_2, allele_score):
+    hla1_1_match = False
+    hla1_2_match = False
+    
+    #test the match between hla1_1 and hla2_1
+    for option1_1 in hla1_1:
+        for option2_1 in hla2_1:
+            if hla1_1_match: break #break the loop if a match has already been made
+            if option1_1.match(option2_1, method):
+                allele_score += 1 
+                hla1_1_match = True
+    
+    #test the match between hla1_2 and hla2_2
+    for option1_2 in hla1_2:
+        for option2_2 in hla2_2:
+            if hla1_2_match: break
+            if option1_2.match(option2_2, method):
+                allele_score += 1
+                hla1_2_match = True
+
+    #test the match between hla1_1 and hla2_2, if hla1_1 has not matched already
+    for option1_1 in hla1_1:
+        for option2_2 in hla2_2:
+            if hla1_1_match: break
+            if option1_1.match(option2_2, method):
+                allele_score += 1 
+                hla1_1_match = True
+
+    #test the match between hla1_2 and hla2_2, if hla1_2 has not matched already
+    for option1_2 in hla1_2:
+        for option2_1 in hla2_1:
+            if hla1_2_match: break
+            if option1_2.match(option2_1, method):
+                allele_score += 1 
+                hla1_2_match = True
+    
+    #write no match messages to output file
+    if hla1_1_match == False:
+        f.write(output_rows[i]['sample_name'] + ' - ' + gene + ': no match: ' + str(hla1_1) + ' vs ' + str(hla2_1) +' and ' + str(hla2_2) + '\n')
+    if hla1_2_match == False:
+        f.write(output_rows[i]['sample_name'] + ' - ' + gene + ': no match: ' + str(hla1_2) + ' vs ' + str(hla2_1) +' and ' + str(hla2_2) + '\n')
+    
     return allele_score
 
-#check if genes match (assumes alleles are in alfabetical order, use sort_alleles.py first)
-gene_score = 0
+#check if hla-types match and calculate percentage of correct alleles
 allele_score = 0
 for i in range(0,len(output_rows)):
     for gene in hla_genes:
-        alleles = [f'{gene}', f'{gene} (2)']
-        for allele in alleles:
-            hla, hla2 = get_hla_class(i, allele)
-            allele_score = check_match(hla, hla2, allele_score) 
-        if allele_score == 2: #if both alleles match
-            gene_score += 1
-        allele_score = 0
-perc_match = round((100*gene_score/(len(output_rows)*len(hla_genes))), 2)
-print('Percentage of genes that match: ' + str(perc_match) + '%')
+        hla1_1, hla1_2, hla2_1, hla2_2 = get_hla_class(i, gene)
+        allele_score = check_match(hla1_1, hla1_2, hla2_1, hla2_2, allele_score)
+
+perc_match = round((100*allele_score/(len(output_rows)*len(hla_genes)*2)), 2)
+print('Percentage of alleles that match: ' + str(perc_match) + '%')
 print('see ' + output_file + ' for detailed result')
-f.write('\n' + 'Percentage of genes that match: ' + str(perc_match) + '%')
+f.write('\n\n' + 'Percentage of alleles that match: ' + str(perc_match) + '%')
