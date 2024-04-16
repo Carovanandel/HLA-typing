@@ -89,3 +89,16 @@ class HLA:
     def fields_from_str(cls, hla):
         hla_class = HLA.from_str(hla)
         return hla_class.fields()
+    
+    def match_reso(self, other, resolution = None):
+        if resolution == None:
+            self = [x for x in self.fields() if x is not None]
+            other = [x for x in other.fields() if x is not None]
+        else:
+            r = resolution + 1
+            self = self.fields()[:r]
+            other = other.fields()[:r]
+        zipped = zip(self,other)
+        for pair in zipped:
+            if pair[0] != pair[1]: return False
+        return True

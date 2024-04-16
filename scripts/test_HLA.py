@@ -92,3 +92,23 @@ fields_list_from_str = [
 @pytest.mark.parametrize("hla, expected", fields_list_from_str)
 def test_fields_from_str(hla, expected):
     assert HLA.fields_from_str(hla) == expected
+
+match_reso=[
+    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), None, True),
+    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), 0, True),
+    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), 1, True),
+    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), 2, True),
+    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), 5, True),
+    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04'), 5, False),
+    (HLA('A','01','02'), HLA('A','01','06'), 1, True),
+    (HLA('A','01','02'), HLA('A','01','06'), 2, False),
+    (HLA(None), HLA(None), 3, True),
+    (HLA('A','01'), HLA('A','01','06'), None, True),
+    (HLA(None), HLA('A','01','01'), None, True),
+    (HLA(None), HLA('A','01','01'), 2, False),
+]
+
+@pytest.mark.parametrize('self, other, resolution, expected', match_reso)
+def test_match_reso(self, other, resolution, expected):
+    assert self.match_reso(other, resolution) == expected
+    assert other.match_reso(self, resolution) == expected
