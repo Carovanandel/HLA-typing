@@ -58,8 +58,10 @@ class HLA:
 
         # Remember to cut off the *
         allele = allele[1:] if allele else None
-        # Remember to cut off the colon
+        # Remember to cut off the colons
         protein = protein[1:] if protein else None
+        synonymous = synonymous[1:] if synonymous else None
+        noncoding = noncoding[1:] if noncoding else None
 
         return HLA(gene, allele, protein, synonymous, noncoding, suffix)
     
@@ -77,3 +79,13 @@ class HLA:
             if self.protein != None and other.protein != None and self.protein != other.protein:
                 return False
             else: return True
+
+    #return a list of the hla class attributes
+    def fields(hla):
+        return [hla.gene, hla.allele, hla.protein, hla.synonymous, hla.noncoding, hla.suffix]
+
+    #return a list of the hla class attributes from a string
+    @classmethod
+    def fields_from_str(cls, hla):
+        hla_class = HLA.from_str(hla)
+        return hla_class.fields()

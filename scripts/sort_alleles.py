@@ -29,13 +29,14 @@ def main (input_file, genes, outdir):
     filename = '.'.join(input_file.split('.')[0:-1]) #remove .csv
     filename = ''.join(filename.split('/')[-1:]) #remove input directory
     outputfilename = f'{filename}_sorted.csv' #add _sorted.csv
-    print(outputfilename)
-    print(f'{outdir}/{outputfilename}')
 
     #write the sorted df to an output csv file
     if outdir == sys.stdout:
-        df.to_csv(sys.stdout, index=False)
-    else: df.to_csv(f'{outdir}/{outputfilename}')
+        df.to_csv(sys.stdout, index=False) #write to stdout if no outdir has been specified
+    else: 
+        if outdir[-1:] == '/': outdir = outdir[:-1] #remove / from end of outdir if present
+        df.to_csv(f'{outdir}/{outputfilename}')
+        print(f'Sorted file: {outdir}/{outputfilename}')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)

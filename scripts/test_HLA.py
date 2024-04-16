@@ -47,6 +47,7 @@ from_str = [
     ("HLA-A*24:02:01:02L", HLA(gene="A", allele="24", protein="02", synonymous="01", noncoding="02", suffix="L")),
     ("HLA-B*44:02:01:02S", HLA(gene="B", allele="44", protein="02", synonymous="01", noncoding="02", suffix="S")),
     ("HLA-A*32:11Q", HLA(gene="A", allele="32", protein="11", suffix="Q")),
+    #("0", HLA(None)),
 ]
 @pytest.mark.parametrize("string, hla", from_str)
 def test_hla_from_string(string, hla):
@@ -69,3 +70,25 @@ match = [
 def test_match(hla, hla2, method, expected):
     assert hla.match(hla2, method) == expected
     assert hla2.match(hla, method) == expected
+
+fields_list = [
+    (HLA('A','01','02','03','04','S'), ['A','01','02','03','04','S']),
+    (HLA('B','03','02'), ['B','03','02',None,None,None]),
+    (HLA(None), [None,None,None,None,None,None]),
+    (HLA(gene='A', allele='24', protein='09', suffix='N'), ['A','24','09',None,None,'N']),
+]
+
+@pytest.mark.parametrize("hla, expected", fields_list)
+def test_fields(hla, expected):
+    assert hla.fields() == expected
+
+fields_list_from_str = [
+    ('HLA-A*01:02:03:04S', ['A','01','02','03','04','S']),
+    ('HLA-B*03:02', ['B','03','02',None,None,None]),
+    ('HLA-A*24:09N', ['A','24','09',None,None,'N']),
+    #('0', [None,None,None,None,None,None]),
+]
+
+@pytest.mark.parametrize("hla, expected", fields_list_from_str)
+def test_fields_from_str(hla, expected):
+    assert HLA.fields_from_str(hla) == expected
