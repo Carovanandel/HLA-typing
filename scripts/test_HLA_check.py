@@ -3,7 +3,8 @@ import sys
 from HLA import HLA
 
 #bypass sys.argv assertion error in HLA_check.py
-sys.argv = ['HLA_check.py','test_files/testoutput_lab.csv', 'test_files/testoutput_tool.csv', '2', 'all']
+sys.argv = ['HLA_check.py','/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/scripts/test_files/testoutput_lab.csv', 
+            '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/scripts/test_files/testoutput_tool.csv', '2', 'all']
 from HLA_check import get_hla_list, check_match
 
 hla_output = [
