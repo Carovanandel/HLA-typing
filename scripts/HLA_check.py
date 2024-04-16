@@ -58,54 +58,63 @@ output2_rows = list(reader_test2)
 assert len(output_rows) == len(output2_rows), "csv files have different amount of samples"
 
 #function that returns a list of hla class objects from a string
-def list_to_hla(options):
+def get_hla_list(options):
+    hla_list = []
     for option in options.split('/'):
-        return [HLA(None) if option == '0' else HLA.from_str(option)]
+        hla_list.append(HLA(None) if option == '0' else HLA.from_str(option))
+    return hla_list
     
 #function that uses list_to_hla to get hla class lists of both alleles for both files
 def get_hla_class(sample, gene):
-    hla1_1 = list_to_hla(output_rows[sample][gene])
-    hla1_2 = list_to_hla(output_rows[sample][f'{gene} (2)'])
-    hla2_1 = list_to_hla(output2_rows[sample][gene])
-    hla2_2 = list_to_hla(output2_rows[sample][f'{gene} (2)'])
+    hla1_1 = get_hla_list(output_rows[sample][gene])
+    hla1_2 = get_hla_list(output_rows[sample][f'{gene} (2)'])
+    hla2_1 = get_hla_list(output2_rows[sample][gene])
+    hla2_2 = get_hla_list(output2_rows[sample][f'{gene} (2)'])
     return hla1_1, hla1_2, hla2_1, hla2_2
 
 #function that will test the match of hla alleles
 def check_match(hla1_1, hla1_2, hla2_1, hla2_2, allele_score):
+    #variables to prevent double matching, by breaking when a match has already been made (== True)
     hla1_1_match = False
     hla1_2_match = False
+    hla2_1_match = False
+    hla2_2_match = False
     
     #test the match between hla1_1 and hla2_1
     for option1_1 in hla1_1:
         for option2_1 in hla2_1:
-            if hla1_1_match: break #break the loop if a match has already been made
+            if hla1_1_match or hla2_1_match: break #break the loop if a match has already been made
             if option1_1.match(option2_1, method):
                 allele_score += 1 
                 hla1_1_match = True
+                hla2_1_match = True
     
     #test the match between hla1_2 and hla2_2
     for option1_2 in hla1_2:
         for option2_2 in hla2_2:
-            if hla1_2_match: break
+            if hla1_2_match or hla2_2_match: break
             if option1_2.match(option2_2, method):
                 allele_score += 1
                 hla1_2_match = True
+                hla2_2_match = True
 
     #test the match between hla1_1 and hla2_2, if hla1_1 has not matched already
     for option1_1 in hla1_1:
         for option2_2 in hla2_2:
-            if hla1_1_match: break
+            if hla1_1_match or hla2_2_match: break
             if option1_1.match(option2_2, method):
                 allele_score += 1 
                 hla1_1_match = True
+                hla2_2_match = True
 
     #test the match between hla1_2 and hla2_2, if hla1_2 has not matched already
     for option1_2 in hla1_2:
         for option2_1 in hla2_1:
-            if hla1_2_match: break
+            if hla1_2_match or hla2_1_match: break
             if option1_2.match(option2_1, method):
                 allele_score += 1 
                 hla1_2_match = True
+                hla2_1_match = True
     
     #write no match messages to output file
     if hla1_1_match == False:
