@@ -64,21 +64,6 @@ class HLA:
         noncoding = noncoding[1:] if noncoding else None
 
         return HLA(gene, allele, protein, synonymous, noncoding, suffix)
-    
-    #testing if two hla-types match
-    #method == 1 --> HLA-types must be identical
-    #method == 2 --> If hla1 does not have a protein field, hla2 is allowed to have anything in the protein field
-    def match(self, other, method):
-        assert method == 1 or method == 2, 'method has to be 1 (identical) or 2 (resolution ambiguity allowed)'
-        if method == 1: #HLA-types must be identical
-            if self == other: return True
-            else: return False
-        if method == 2: #only if hla1 has a protein field, hla2 has to match
-            if self.gene != other.gene or self.allele != other.allele:
-                return False
-            if self.protein != None and other.protein != None and self.protein != other.protein:
-                return False
-            else: return True
 
     #return a list of the hla class attributes
     def fields(hla):
@@ -90,12 +75,13 @@ class HLA:
         hla_class = HLA.from_str(hla)
         return hla_class.fields()
     
-    def match_reso(self, other, resolution = None):
+    #test if two hla-types match
+    def match(self, other, resolution = None):
         if resolution == None:
             self = [x for x in self.fields() if x is not None]
             other = [x for x in other.fields() if x is not None]
         else:
-            r = resolution + 1
+            r = int(resolution) + 1
             self = self.fields()[:r]
             other = other.fields()[:r]
         zipped = zip(self,other)

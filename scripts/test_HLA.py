@@ -58,18 +58,18 @@ match = [
     (HLA('A', '01'), HLA('A', '01'), 2, True),
     (HLA('A', '01', '01'), HLA('A', '01', '01'), 2, True),
     (HLA('A', '01', '01'), HLA('A', '01', '02'), 2, False),
-    (HLA('A', '01', '01'), HLA('A', '01'), 2, True),
-    (HLA('A', '01'), HLA('A', '01', '01'), 2, True),
-    (HLA('A', '01'), HLA('A', '01', '01'), 1, False),
+    (HLA('A', '01', '01'), HLA('A', '01'), 2, False),
+    (HLA('A', '01'), HLA('A', '01', '01'), 2, False),
+    (HLA('A', '01'), HLA('A', '01', '01'), 1, True),
     (HLA(None), HLA('A', '01', '01'), 2, False),
     (HLA(None), HLA(None), 1, True),
     (HLA(None), HLA(None), 2, True),
 ]
 
-@pytest.mark.parametrize("hla, hla2, method, expected", match)
-def test_match(hla, hla2, method, expected):
-    assert hla.match(hla2, method) == expected
-    assert hla2.match(hla, method) == expected
+@pytest.mark.parametrize("hla, hla2, resolution, expected", match)
+def test_match(hla, hla2, resolution, expected):
+    assert hla.match(hla2, resolution) == expected
+    assert hla2.match(hla, resolution) == expected
 
 fields_list = [
     (HLA('A','01','02','03','04','S'), ['A','01','02','03','04','S']),
@@ -93,7 +93,7 @@ fields_list_from_str = [
 def test_fields_from_str(hla, expected):
     assert HLA.fields_from_str(hla) == expected
 
-match_reso=[
+match_test=[
     (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), None, True),
     (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), 0, True),
     (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), 1, True),
@@ -108,7 +108,7 @@ match_reso=[
     (HLA(None), HLA('A','01','01'), 2, False),
 ]
 
-@pytest.mark.parametrize('self, other, resolution, expected', match_reso)
-def test_match_reso(self, other, resolution, expected):
-    assert self.match_reso(other, resolution) == expected
-    assert other.match_reso(self, resolution) == expected
+@pytest.mark.parametrize('self, other, resolution, expected', match_test)
+def test_match(self, other, resolution, expected):
+    assert self.match(other, resolution) == expected
+    assert other.match(self, resolution) == expected
