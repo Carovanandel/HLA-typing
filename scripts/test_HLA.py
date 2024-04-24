@@ -99,21 +99,25 @@ def test_fields_from_str(hla, expected):
     assert HLA.fields_from_str(hla) == expected
 
 match_test=[
-    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), None, True),
-    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), 0, True),
-    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), 1, True),
-    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), 2, True),
-    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04','S'), 5, True),
-    (HLA('A','01','02','03','04','S'), HLA('A','01','02','03','04'), 5, False),
-    (HLA('A','01','02'), HLA('A','01','06'), 1, True),
-    (HLA('A','01','02'), HLA('A','01','06'), 2, False),
-    (HLA(None), HLA(None), 3, True),
-    (HLA('A','01'), HLA('A','01','06'), None, True),
-    (HLA(None), HLA('A','01','01'), None, True),
-    (HLA(None), HLA('A','01','01'), 2, False),
+    ("HLA-A*01:02:03:04S", "HLA-A*01:02:03:04S", None, True),
+    ("HLA-A*01:02:03:04S", "HLA-A*01:02:03:04S", 0, True),
+    ("HLA-A*01:02:03:04S", "HLA-A*01:02:03:04S", 1, True),
+    ("HLA-A*01:02:03:04S", "HLA-A*01:02:03:04S", 2, True),
+    ("HLA-A*01:02:03:04S", "HLA-A*01:02:03:04S", 5, True),
+    ("HLA-A*01:02:03:04S", "HLA-A*01:02:03:04", 5, False),
+    ("HLA-A*01:02", "HLA-A*01:05", 1, True),
+    ("HLA-A*01:02", "HLA-A*01:05", 2, False),
+    ("HLA-A", "HLA-A", 3, True),
+    ("HLA-A*01", "HLA-A*01:06", None, True),
+    ("HLA-A", "HLA-A*01:01", None, True),
+    ("HLA-A", "HLA-A*01:01", 0, True),
+    ("HLA-A", "HLA-A*01:01", 2, False),
 ]
 
-@pytest.mark.parametrize('self, other, resolution, expected', match_test)
-def test_match(self, other, resolution, expected):
-    assert self.match(other, resolution) == expected
-    assert other.match(self, resolution) == expected
+@pytest.mark.parametrize('hla1, hla2, resolution, expected', match_test)
+def test_match_resolution(hla1, hla2, resolution, expected):
+    # Convert the string representation to an HLA object
+    HLA1 = HLA.from_str(hla1)
+    HLA2 = HLA.from_str(hla2)
+    assert HLA1.match(HLA2, resolution) == expected
+    assert HLA2.match(HLA1, resolution) == expected
