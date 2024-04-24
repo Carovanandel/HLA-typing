@@ -47,8 +47,11 @@ class HLA:
     def from_str(cls, hla):
         # HLA-DRB1*13:01:01:02Q
         pattern = r"^HLA-(\w+)(\*\d+)?(:\d+)?(:\d+)?(:\d+)?([LSCAQN])?$"
-        assert hla.startswith("HLA-"), "Please use full HLA nomenclature"
         m = re.match(pattern, hla)
+
+        if not m:
+            raise ValueError(f"Invalid HLA description: {hla}")
+
         gene = m.group(1)
         allele = m.group(2)
         protein = m.group(3)

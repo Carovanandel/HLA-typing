@@ -54,6 +54,11 @@ def test_hla_from_string(string, hla):
     assert HLA.from_str(string) == hla
     assert str(hla) == string
 
+def test_invalid_HLA_string() -> None:
+    with pytest.raises(ValueError):
+        HLA.from_str("hla25")
+
+
 match = [
     (HLA('A', '01'), HLA('A', '01'), 2, True),
     (HLA('A', '01', '01'), HLA('A', '01', '01'), 2, True),
