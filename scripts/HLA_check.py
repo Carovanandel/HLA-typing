@@ -13,12 +13,12 @@ def get_hla_list(options):
         if option != '': hla_list.append(HLA.from_str(option))
     return hla_list
     
-def get_hla_class(sample, gene, output_rows, output2_rows):
+def get_hla_class(sample, gene, input1_rows, input2_rows):
     """Get lists of hla class objects of both alleles for both files (for given sample+gene)"""
-    hla1_1 = get_hla_list(output_rows[sample][gene])
-    hla1_2 = get_hla_list(output_rows[sample][f'{gene} (2)'])
-    hla2_1 = get_hla_list(output2_rows[sample][gene])
-    hla2_2 = get_hla_list(output2_rows[sample][f'{gene} (2)'])
+    hla1_1 = get_hla_list(input1_rows[sample][gene])
+    hla1_2 = get_hla_list(input1_rows[sample][f'{gene} (2)'])
+    hla2_1 = get_hla_list(input2_rows[sample][gene])
+    hla2_2 = get_hla_list(input2_rows[sample][f'{gene} (2)'])
     return hla1_1, hla1_2, hla2_1, hla2_2
 
 def check_match(hla1, hla2, resolution, method):
@@ -56,7 +56,33 @@ def match_pairs(hla1_1, hla1_2, hla2_1, hla2_2, resolution, method):
     
     return max_score, matched_pairs
 
+def mismatch_message(f, input1_rows, i, gene, score, matched_pairs, hla1_1, hla1_2, hla2_1, hla2_2):
+    """Print a mismatch message to the output file"""
+    if score == 2: #both alleles matched, no mismatch message
+        return 
+    if score == 0: #both alleles did not match
+        message = f'{input1_rows[i]['sample_name']} - {gene}: no match for both alleles: {hla1_1} and {hla1_2} vs {hla2_1} and {hla2_2}\n'
+    elif score == 1: #one allele did not match, mismatch message depends on which pairs matched
+        if matched_pairs[0] == 1: #the first pair in matched_pairs (if there even are 2) determines the mismatch message
+            hla1 = hla1_2
+            hla2 = hla2_2
+        elif matched_pairs[0] == 2:
+            hla1 = hla1_1
+            hla2 = hla2_1
+        elif matched_pairs[0] == 3:
+            hla1 = hla1_2
+            hla2 = hla2_1
+        elif matched_pairs[0] == 4:
+            hla1 = hla1_1
+            hla2 = hla2_2
+        message = f'{input1_rows[i]['sample_name']} - {gene}: no match: {hla1} vs {hla2}\n'
+    
+    if f != sys.stdout: f.write(message)
+    
 def main(input1, input2, resolution, method, genes, outdir):
+    
+    assert method in {'all', 'any'}, f'{method}: no valid option for --method argument: choose either any or all'
+
     """Create output file, parse hla genes and headers, read input files, match hla alleles, calculate allele score"""
     #create output txt file 
     output_file = '' #create txt file name
@@ -64,13 +90,13 @@ def main(input1, input2, resolution, method, genes, outdir):
         file = path.split('/')[-1] #get file name
         name = '.'.join(file.split('.')[0:-1]) #remove .csv
         output_file += f'{name}-'
-    output_file += f'{resolution}-checked.txt'
+    output_file += f'{resolution}-{method}-checked.txt'
     if outdir == sys.stdout:
         f = sys.stdout
     else: 
         if outdir[-1:] == '/': outdir = outdir[:-1] #remove / from end of outdir if present
         f = open(f'{outdir}/{output_file}', 'w')
-    f.write(f"matching resolution used: {resolution} fields\nmatching method used: {method} must match\n\n")
+    f.write(f"matching resolution used: {resolution} fields\nmatching method used: {method}\n\n")
 
     #parse genes that need to be checked
     hla_genes = []
@@ -92,21 +118,25 @@ def main(input1, input2, resolution, method, genes, outdir):
         reader_file = csv.DictReader(open_file, fieldnames=header)
         next(reader_file) #skip header
         input_rows.append(list(reader_file))
-    output_rows = input_rows[0]
-    output2_rows = input_rows[1]
+    input1_rows = input_rows[0]
+    input2_rows = input_rows[1]
+    #check if all genes are present in the input
+    for gene in genes:
+        assert input1_rows[0][f'HLA-{gene}'] != None, 'Not all genes that are being matched are present in the input files'
+        assert input2_rows[0][f'HLA-{gene}'] != None, 'Not all genes that are being matched are present in the input files'
 
     #check both csv files have the same amount of samples
-    assert len(output_rows) == len(output2_rows), "csv files have different amount of samples"
+    assert len(input1_rows) == len(input2_rows), "csv files have different amount of samples"
 
     #check if hla-types match and calculate percentage of correct alleles
     allele_score = 0
-    for i in range(0,len(output_rows)):
+    for i in range(0,len(input1_rows)):
         for gene in hla_genes:
-            hla1_1, hla1_2, hla2_1, hla2_2 = get_hla_class(i, gene, output_rows, output2_rows)
+            hla1_1, hla1_2, hla2_1, hla2_2 = get_hla_class(i, gene, input1_rows, input2_rows)
             score, matched_pairs = match_pairs(hla1_1, hla1_2, hla2_1, hla2_2, resolution, method)
             allele_score += score
-            #create function that prints a mismatch message using score and matched_pairs
-    perc_match = round((100*allele_score/(len(output_rows)*len(hla_genes)*2)), 2)
+            mismatch_message(f, input1_rows, i, gene, score, matched_pairs, hla1_1, hla1_2, hla2_1, hla2_2)
+    perc_match = round((100*allele_score/(len(input1_rows)*len(hla_genes)*2)), 2)
     if f != sys.stdout:
         print('Percentage of alleles that match: ' + str(perc_match) + '%' + '\nsee ' + outdir + '/' + output_file + ' for detailed result')
     f.write('\nPercentage of alleles that match: ' + str(perc_match) + '%\n')

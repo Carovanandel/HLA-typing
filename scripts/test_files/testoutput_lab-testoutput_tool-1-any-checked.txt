@@ -1,0 +1,10 @@
+matching resolution used: 1 fields
+matching method used: any
+
+Genes that are being matched: HLA-A, HLA-B, HLA-C, HLA-DRB1, HLA-DRB3, HLA-DRB4, HLA-DRB5, HLA-DQA1, HLA-DQB1, HLA-DPB1
+
+sample2 - HLA-B: no match: [HLA-B*51:04] vs [HLA-B*52:04]
+sample2 - HLA-DRB5: no match: [HLA-DRB5*05:01] vs [HLA-DRB5*06:01]
+sample3 - HLA-DRB5: no match: [HLA-DRB5*02:01] vs [HLA-DRB5*01:01]
+
+Percentage of alleles that match: 95.0%
