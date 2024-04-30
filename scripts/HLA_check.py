@@ -8,8 +8,9 @@ import argparse
 def get_hla_list(options):
     """Return a list of hla class objects from a string"""
     hla_list = []
-    for option in options.split('/'):
-        hla_list.append(HLA(None) if option == '0' else HLA.from_str(option))
+    options_sorted = sorted(options.split('/')) #sort options alphabetically, necessary for 'all' match method
+    for option in options_sorted:
+        if option != '': hla_list.append(HLA.from_str(option))
     return hla_list
     
 def get_hla_class(sample, gene, output_rows, output2_rows):
@@ -20,60 +21,42 @@ def get_hla_class(sample, gene, output_rows, output2_rows):
     hla2_2 = get_hla_list(output2_rows[sample][f'{gene} (2)'])
     return hla1_1, hla1_2, hla2_1, hla2_2
 
-def check_match(hla1_1, hla1_2, hla2_1, hla2_2, allele_score, gene, resolution, output_rows, f, i):
-    """Test the match of both hla alleles for both files"""
-    #variables to prevent double matching, by breaking when a match has already been made (== True)
-    hla1_1_match = False
-    hla1_2_match = False
-    hla2_1_match = False
-    hla2_2_match = False
+def check_match(hla1, hla2, resolution, method):
+    """Test the match between two hla lists, for a given resolution and method"""
+    if method == 'any':
+        if hla1 == [] and hla2 == []: return True #both empty lists ('' alleles) > return True
+        for option1 in hla1:
+            for option2 in hla2:
+                if option1.match(option2, resolution): return True #if any option matches, return True
+        return False #if no options match, return False
+    if method == 'all':
+        if len(hla1) != len(hla2): return False #if one list has more options than the other, return False
+        #hla1 and hla2 have been sorted alphabetically by get_hla_list()
+        for i in range(len(hla1)):
+            if not hla1[i].match(hla2[i], resolution): return False #if any option does not match, return False
+        return True #if all options match, return True
     
-    #test the match between hla1_1 and hla2_1
-    for option1_1 in hla1_1:
-        for option2_1 in hla2_1:
-            if hla1_1_match or hla2_1_match: break #break the loop if a match has already been made
-            if option1_1.match(option2_1, resolution):
-                allele_score += 1 
-                hla1_1_match = True
-                hla2_1_match = True
+def match_pairs(hla1_1, hla1_2, hla2_1, hla2_2, resolution, method):
+    """Get the allele score for both combinations of allele matches and return the highest score"""
+    combinations = [
+        [(hla1_1, hla2_1), (hla1_2, hla2_2)],
+        [(hla1_1, hla2_2), (hla1_2, hla2_1)]
+    ]
+    max_score = 0
+    pair_nr = 1 #variable to note which pair is being matched
+    matched_pairs = [] #list to note pairs that matched successfully for printing a mismatch message
+    for option in combinations:
+        score = 0
+        for pair in option:
+            if check_match(pair[0], pair[1], resolution, method): 
+                score += 1
+                matched_pairs.append(pair_nr)
+            pair_nr += 1
+        max_score = max(max_score, score)
     
-    #test the match between hla1_2 and hla2_2
-    for option1_2 in hla1_2:
-        for option2_2 in hla2_2:
-            if hla1_2_match or hla2_2_match: break
-            if option1_2.match(option2_2, resolution):
-                allele_score += 1
-                hla1_2_match = True
-                hla2_2_match = True
+    return max_score, matched_pairs
 
-    #test the match between hla1_1 and hla2_2, if hla1_1 has not matched already
-    for option1_1 in hla1_1:
-        for option2_2 in hla2_2:
-            if hla1_1_match or hla2_2_match: break
-            if option1_1.match(option2_2, resolution):
-                allele_score += 1 
-                hla1_1_match = True
-                hla2_2_match = True
-
-    #test the match between hla1_2 and hla2_2, if hla1_2 has not matched already
-    for option1_2 in hla1_2:
-        for option2_1 in hla2_1:
-            if hla1_2_match or hla2_1_match: break
-            if option1_2.match(option2_1, resolution):
-                allele_score += 1 
-                hla1_2_match = True
-                hla2_1_match = True
-    
-    #write no match messages to output file
-    if hla1_1_match == False:
-        if f != sys.stdout:
-            f.write(output_rows[i]['sample_name'] + ' - ' + gene + ': no match: ' + str(hla1_1) + ' vs ' + str(hla2_1) +' and ' + str(hla2_2) + '\n')
-    if hla1_2_match == False:
-        f.write(output_rows[i]['sample_name'] + ' - ' + gene + ': no match: ' + str(hla1_2) + ' vs ' + str(hla2_1) +' and ' + str(hla2_2) + '\n')
-    
-    return allele_score
-
-def main(input1, input2, resolution, genes, outdir):
+def main(input1, input2, resolution, method, genes, outdir):
     """Create output file, parse hla genes and headers, read input files, match hla alleles, calculate allele score"""
     #create output txt file 
     output_file = '' #create txt file name
@@ -87,7 +70,7 @@ def main(input1, input2, resolution, genes, outdir):
     else: 
         if outdir[-1:] == '/': outdir = outdir[:-1] #remove / from end of outdir if present
         f = open(f'{outdir}/{output_file}', 'w')
-    f.write(f"matching resolution used: {resolution}\n\n")
+    f.write(f"matching resolution used: {resolution} fields\nmatching method used: {method} must match\n\n")
 
     #parse genes that need to be checked
     hla_genes = []
@@ -120,8 +103,9 @@ def main(input1, input2, resolution, genes, outdir):
     for i in range(0,len(output_rows)):
         for gene in hla_genes:
             hla1_1, hla1_2, hla2_1, hla2_2 = get_hla_class(i, gene, output_rows, output2_rows)
-            allele_score = check_match(hla1_1, hla1_2, hla2_1, hla2_2, allele_score, gene, resolution, output_rows, f, i)
-
+            score, matched_pairs = match_pairs(hla1_1, hla1_2, hla2_1, hla2_2, resolution, method)
+            allele_score += score
+            #create function that prints a mismatch message using score and matched_pairs
     perc_match = round((100*allele_score/(len(output_rows)*len(hla_genes)*2)), 2)
     if f != sys.stdout:
         print('Percentage of alleles that match: ' + str(perc_match) + '%' + '\nsee ' + outdir + '/' + output_file + ' for detailed result')
@@ -132,9 +116,10 @@ if __name__ == "__main__":
     parser.add_argument("--input1", required=True, help="Input 1 CSV file to be matched")
     parser.add_argument("--input2", required=True, help="Input 2 CSV file to be matched")
     parser.add_argument("--resolution", default=None, help="Resolution at which matching should be done")
+    parser.add_argument("--method", default='any', help = "Method for matching with multiple HLA options: any or all")
     parser.add_argument("--genes", nargs='+', default=['A','B','C','DRB1','DRB3','DRB4','DRB5','DQA1','DQB1','DPB1'], help="Genes to include")
     parser.add_argument("--outdir", default = sys.stdout, help = "Output directory for the matching result")
 
     args = parser.parse_args()
 
-    main(args.input1, args.input2, args.resolution, args.genes, args.outdir)
+    main(args.input1, args.input2, args.resolution, args.method, args.genes, args.outdir)
