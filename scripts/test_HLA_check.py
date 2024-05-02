@@ -39,11 +39,33 @@ def test_match(hla1, hla2, resolution, method, expected):
     assert check_match(HLA2, HLA1, resolution, method) == expected
 
 pairs = [
-    ([HLA('A'),HLA('B')], [HLA('C')], [HLA('A'), HLA('C')], [HLA('A'), HLA('B')], None, 'any', (2, [1, 3, 4])),
-    ([HLA('A'),HLA('B')], [HLA('C')], [HLA('A')], [HLA('A'), HLA('B')], None, 'any', (1, [1, 3])),
-    ([HLA('A')], [HLA('C')], [HLA('B')], [HLA('D')], None, 'any', (0, [])),
+    (
+        ["HLA-A", "HLA-B"],
+        ["HLA-C"],
+        ["HLA-A", "HLA-C"],
+        ["HLA-A", "HLA-B"],
+        None, 'any', (2, [1, 3, 4])
+    ),
+    (
+        ["HLA-A", "HLA-B"],
+        ["HLA-C"],
+        ["HLA-A"],
+        ["HLA-A", "HLA-B"],
+        None, 'any', (1, [1, 3])
+    ),
+    (
+        ["HLA-A"],
+        ["HLA-C"],
+        ["HLA-B"],
+        ["HLA-D"],
+        None, 'any', (0, [])),
 ]
 
 @pytest.mark.parametrize('hla1_1, hla1_2, hla2_1, hla2_2, resolution, method, expected', pairs)
 def test_match_pairs(hla1_1, hla1_2, hla2_1, hla2_2, resolution, method, expected):
-    assert match_pairs(hla1_1, hla1_2, hla2_1, hla2_2, resolution, method) == expected
+    # Convert the string representation to HLA
+    HLA1_1 = [HLA.from_str(x) for x in hla1_1]
+    HLA1_2 = [HLA.from_str(x) for x in hla1_2]
+    HLA2_1 = [HLA.from_str(x) for x in hla2_1]
+    HLA2_2 = [HLA.from_str(x) for x in hla2_2]
+    assert match_pairs(HLA1_1, HLA1_2, HLA2_1, HLA2_2, resolution, method) == expected
