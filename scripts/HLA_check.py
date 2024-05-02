@@ -61,7 +61,7 @@ def mismatch_message(f, input1_rows, i, gene, score, matched_pairs, hla1_1, hla1
     if score == 2: #both alleles matched, no mismatch message
         return 
     if score == 0: #both alleles did not match
-        message = f'{input1_rows[i]['sample_name']} - {gene}: no match for both alleles: {hla1_1} and {hla1_2} vs {hla2_1} and {hla2_2}\n'
+        message = f"{input1_rows[i]['sample_name']} - {gene}: no match for both alleles: {hla1_1} and {hla1_2} vs {hla2_1} and {hla2_2}\n"
     elif score == 1: #one allele did not match, mismatch message depends on which pairs matched
         if matched_pairs[0] == 1: #the first pair in matched_pairs (if there even are 2) determines the mismatch message
             hla1 = hla1_2
@@ -75,7 +75,7 @@ def mismatch_message(f, input1_rows, i, gene, score, matched_pairs, hla1_1, hla1
         elif matched_pairs[0] == 4:
             hla1 = hla1_1
             hla2 = hla2_2
-        message = f'{input1_rows[i]['sample_name']} - {gene}: no match: {hla1} vs {hla2}\n'
+        message = f"{input1_rows[i]['sample_name']} - {gene}: no match: {hla1} vs {hla2}\n"
     
     if f != sys.stdout: f.write(message)
     
