@@ -1,7 +1,7 @@
 import csv
 
 #input file - hla-type.csv
-input_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/gefilterd-hla-type.csv'
+input_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/lab/raw-hla-type.csv'
 input_open = open(input_path, 'r', newline='')
 input_reader = csv.DictReader(input_open, delimiter=',')
 
@@ -10,7 +10,7 @@ header_full = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HLA-C
     'HLA-DRB5', 'HLA-DRB5 (2)', 'HLA-DQA1', 'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)',
     'HLA-DPB1', 'HLA-DPB1 (2)']
 
-output_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/formatted-hla-type.csv'
+output_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/lab/formatted-hla-type.csv'
 output_open = open(output_path, 'w', newline='')
 output_writer = csv.DictWriter(output_open, fieldnames=header_full)
 output_writer.writeheader()

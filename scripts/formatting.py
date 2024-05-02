@@ -18,7 +18,7 @@ header_spechla = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HL
     'HLA-DRB1', 'HLA-DRB1 (2)', 'HLA-DQA1', 'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)', 'HLA-DPB1', 'HLA-DPB1 (2)']
 
 #create a list of the sample names from the lab output (hla-type.csv)
-hla_type_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/gefilterd-hla-type.csv'
+hla_type_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/lab/raw-hla-type.csv'
 hla_type = open(hla_type_path, newline='')
 hla_type_reader = csv.DictReader(hla_type, fieldnames=header_full)
 
@@ -106,7 +106,7 @@ for sample in sample_names:
         if gene in genes:
             if row[2] == '.': output_row_t1k[gene] = '' #no genotype for allele1 > '' in output
             else: output_row_t1k[gene] = convert_options(row[2]) #row[2]: allele 1
-            if row[5] == '.': output_row_t1k[gene + ' (2)'] = convert_options(row[2]) #homozygous > allele 2 = allele 1
+            if row[5] == '.': output_row_t1k[gene + ' (2)'] = output_row_t1k[gene] #homozygous > allele 2 = allele 1
             else: output_row_t1k[gene + ' (2)'] = convert_options(row[5]) #row[5]: allele 2
     t1k_output_writer.writerow(output_row_t1k)
 

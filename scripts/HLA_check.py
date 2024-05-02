@@ -58,8 +58,6 @@ def match_pairs(hla1_1, hla1_2, hla2_1, hla2_2, resolution, method):
 
 def mismatch_message(f, input1_rows, i, gene, score, matched_pairs, hla1_1, hla1_2, hla2_1, hla2_2):
     """Print a mismatch message to the output file"""
-    if score == 2: #both alleles matched, no mismatch message
-        return 
     if score == 0: #both alleles did not match
         message = f"{input1_rows[i]['sample_name']} - {gene}: no match for both alleles: {hla1_1} and {hla1_2} vs {hla2_1} and {hla2_2}\n"
     elif score == 1: #one allele did not match, mismatch message depends on which pairs matched
@@ -77,7 +75,7 @@ def mismatch_message(f, input1_rows, i, gene, score, matched_pairs, hla1_1, hla1
             hla2 = hla2_2
         message = f"{input1_rows[i]['sample_name']} - {gene}: no match: {hla1} vs {hla2}\n"
     
-    if f != sys.stdout: f.write(message)
+    f.write(message)
     
 def main(input1, input2, resolution, method, genes, outdir):
     
@@ -96,7 +94,7 @@ def main(input1, input2, resolution, method, genes, outdir):
     else: 
         if outdir[-1:] == '/': outdir = outdir[:-1] #remove / from end of outdir if present
         f = open(f'{outdir}/{output_file}', 'w')
-    f.write(f"matching resolution used: {resolution} fields\nmatching method used: {method}\n\n")
+    f.write(f"matching resolution used: {resolution}\nmatching method used: {method}\n\n")
 
     #parse genes that need to be checked
     hla_genes = []
