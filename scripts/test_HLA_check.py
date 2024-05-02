@@ -20,11 +20,11 @@ def test_get_hla_list(hla, expected):
     assert get_hla_list(hla) == expected
 
 match = [
-    ([HLA('A')], [HLA('A')], None, 'all', True),
-    ([HLA('A')], [HLA('A')], None, 'any', True),
-    ([HLA('A'), HLA('a')], [HLA('A')], None, 'all', False),
-    ([HLA('A'), HLA('a')], [HLA('A')], None, 'any', True),
-    ([HLA('A'), HLA('a')], [HLA('A'), HLA('a')], None, 'all', True),
+    (["HLA-A"], ["HLA-A"], None, 'all', True),
+    (["HLA-A"], ["HLA-A"], None, 'any', True),
+    (["HLA-A", "HLA-a"], ["HLA-A"], None, 'all', False),
+    (["HLA-A", "HLA-a"], ["HLA-A"], None, 'any', True),
+    (["HLA-A", "HLA-a"], ["HLA-A", "HLA-a"], None, 'all', True),
     ([], [], None, 'any', True),
     ([], [], None, 'all', True),
     ([], [], 2, 'any', True),
@@ -33,8 +33,10 @@ match = [
 
 @pytest.mark.parametrize('hla1, hla2, resolution, method, expected', match)
 def test_match(hla1, hla2, resolution, method, expected):
-    assert check_match(hla1, hla2, resolution, method) == expected
-    assert check_match(hla2, hla1, resolution, method) == expected
+    HLA1 = [HLA.from_str(x) for x in hla1]
+    HLA2 = [HLA.from_str(x) for x in hla2]
+    assert check_match(HLA1, HLA2, resolution, method) == expected
+    assert check_match(HLA2, HLA1, resolution, method) == expected
 
 pairs = [
     ([HLA('A'),HLA('B')], [HLA('C')], [HLA('A'), HLA('C')], [HLA('A'), HLA('B')], None, 'any', (2, [1, 3, 4])),
