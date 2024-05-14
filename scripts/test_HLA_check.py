@@ -8,11 +8,12 @@ sys.argv = ['HLA_check.py','scripts/test_files/testoutput_lab.csv',
 from HLA_check import get_hla_list, check_match, match_pairs
 
 hla_list = [
-    ('HLA-A*01:01', [HLA('A','01','01')]),
-    ('HLA-A*01:01/HLA-A*01:02', [HLA('A','01','01'),HLA('A','01','02')]),
-    ('HLA-B*01:01/HLA-B*01', [HLA('B','01'), HLA('B','01','01')]),
-    ('HLA-C*01:01N', [HLA('C','01','01',None,None,'N')]),
-    ('', []),
+    ('HLA-A*01:01', ([HLA('A','01','01')], 'valid')),
+    ('HLA-A*01:01/HLA-A*01:02', ([HLA('A','01','01'),HLA('A','01','02')], 'valid')),
+    ('HLA-B*01:01/HLA-B*01', ([HLA('B','01'), HLA('B','01','01')], 'valid')),
+    ('HLA-C*01:01N', ([HLA('C','01','01',None,None,'N')], 'valid')),
+    ('', ([HLA('empty')], 'empty')),
+    ('X', ([HLA('X')], 'inc_nomen')),
 ]
 
 @pytest.mark.parametrize("hla, expected", hla_list)
