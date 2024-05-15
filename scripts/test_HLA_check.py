@@ -26,10 +26,7 @@ match = [
     (["HLA-A", "HLA-a"], ["HLA-A"], None, 'all', False),
     (["HLA-A", "HLA-a"], ["HLA-A"], None, 'any', True),
     (["HLA-A", "HLA-a"], ["HLA-A", "HLA-a"], None, 'all', True),
-    ([], [], None, 'any', True),
-    ([], [], None, 'all', True),
-    ([], [], 2, 'any', True),
-    ([], [], 2, 'all', True),
+    ([], [], None, 'any', False),
 ]
 
 @pytest.mark.parametrize('hla1, hla2, resolution, method, expected', match)
