@@ -46,12 +46,13 @@ def get_hla_class(sample, gene, input1_rows, input2_rows):
 def check_match(hla1, hla2, resolution, method):
     """Test the match between two hla lists, for a given resolution and method"""
     if method == 'any':
-        if hla1 == [] and hla2 == []: return True #both empty lists ('' alleles) > return True
+        if hla1 == [HLA('empty')] and hla2 == [HLA('empty')]: return False #both empty alleles ('' alleles) > return false (alleles are excluded)
         for option1 in hla1:
             for option2 in hla2:
                 if option1.match(option2, resolution): return True #if any option matches, return True
         return False #if no options match, return False
     if method == 'all':
+        if hla1 == [HLA('empty')] and hla2 == [HLA('empty')]: return False
         if len(hla1) != len(hla2): return False #if one list has more options than the other, return False
         #hla1 and hla2 have been sorted alphabetically by get_hla_list()
         for i in range(len(hla1)):
@@ -126,13 +127,11 @@ def main(input1, input2, resolution, method, genes, outdir):
         f = open(f'{outdir}/{output_file}', 'w')
     f.write(f"matching resolution used: {resolution}\nmatching method used: {method}\n")
 
-    #parse genes that need to be checked
+    #parse genes that need to be checked and create header
     hla_genes = []
-    for gene in genes:
-        hla_genes.append(f'HLA-{gene}')
-    #create header
     header = ['sample_name'] 
     for gene in genes:
+        hla_genes.append(f'HLA-{gene}')
         header.append(f'HLA-{gene}')
         header.append(f'HLA-{gene} (2)')
 
@@ -156,7 +155,7 @@ def main(input1, input2, resolution, method, genes, outdir):
     #check both csv files have the same amount of samples
     assert len(input1_rows) == len(input2_rows), "csv files have different amount of samples"
 
-    f.write(f'Input files: {input1.split('/')[-1]} vs {input2.split('/')[-1]}\n\n')
+    f.write(f'Input files: {input1.split("/")[-1]} vs {input2.split("/")[-1]}\n\n')
 
     #check if hla-types match and calculate percentage of correct alleles
     allele_score = 0 #counts correct alleles
