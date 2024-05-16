@@ -108,9 +108,11 @@ def mismatch_message(f, input1_rows, i, gene, score, matched_pairs, hla1_1, hla1
             f.write(f"{input1_rows[i]['sample_name']} - {gene}: no match: {hla1} vs {hla2}\n")
     else: return #if score = 2, no mismatch message needs to be printed
     
-def main(input1, input2, resolution, method, genes, outdir):
+def main(input1, input2, resolution_arg, method, genes, outdir):
     
     assert method in {'all', 'any'}, f'{method}: no valid option for --method argument: choose either any or all'
+    if resolution_arg == 'None': resolution = None #support --resolution None
+    else: resolution = resolution_arg
 
     """Create output file, parse hla genes and headers, read input files, match hla alleles, calculate allele score"""
     #create output txt file 
@@ -168,7 +170,11 @@ def main(input1, input2, resolution, method, genes, outdir):
             total_inc_nomen += alleles_validity[1]
             total_empty += alleles_validity[2]
             mismatch_message(f, input1_rows, i, gene, score, matched_pairs, hla1_1, hla1_2, hla2_1, hla2_2)
-    perc_match = round(100*allele_score/total_valid, 2)
+    if total_valid != 0:
+        perc_match = round(100*allele_score/total_valid, 2)
+    else:
+        f.write('No valid alleles recognized, cannot calculate percentage matched')
+        perc_match = '-'
     if f != sys.stdout:
         print(f'Percentage of alleles that match: {str(perc_match)}% \nsee {outdir}/{output_file} for detailed result')
     f.write(f'\nNumber of alleles excluded due to incorrect nomenclature: {total_inc_nomen}\n')
