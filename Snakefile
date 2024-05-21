@@ -14,6 +14,10 @@ rule all:
             "output/{sample}/seq2hla/{sample}-ClassI-class.HLAgenotype4digits",
             sample=pep.sample_table["sample_name"],
         ),
+        spechla=expand(
+            "output/{sample}/spechla/hla.result.txt",
+            sample=pep.sample_table["sample_name"],
+        ),
 
 
 #        arcashla=expand(
@@ -116,4 +120,27 @@ rule optitype:
         --outdir $(dirname {output.genotype}) \
         --verbose 2> {log}
         mv output/{wildcards.sample}/optitype/*/*result.tsv {output.genotype}
+        """
+
+
+rule spechla:
+    input:
+        f=get_forward,
+        r=get_reverse,
+    output:
+        result="output/{sample}/spechla/hla.result.txt",
+    log:
+        "output/log/{sample}.spechla.txt",
+    threads: 1
+    shell:
+        """
+        bash ../SpecHLA/script/whole/SpecHLA.sh \
+        -u 1 \
+        -j {threads} \
+        -n {wildcards.sample} \
+        -1 {input.f} \
+        -2 {input.r} \
+        -o $(dirname {output.result}) \
+        2> {log} 
+        mv output/{wildcards.sample}/spechla/{wildcards.sample}/hla.result.txt {output.result}
         """
