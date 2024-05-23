@@ -14,20 +14,19 @@ rule all:
             "output/{sample}/seq2hla/{sample}-ClassI-class.HLAgenotype4digits",
             sample=pep.sample_table["sample_name"],
         ),
+        optitype=expand(
+            "output/{sample}/optitype/{sample}.tsv",
+            sample=pep.sample_table["sample_name"],
+        ),
         spechla=expand(
             "output/{sample}/spechla/hla.result.txt",
             sample=pep.sample_table["sample_name"],
         ),
-
-
-#        arcashla=expand(
-#            "output/{sample}/arcashla/{sample}.genotype.json",
-#            sample=pep.sample_table["sample_name"],
-#        ),
-#        optitype=expand(
-#                "output/{sample}/optitype/{sample}.tsv",
-#                sample=pep.sample_table["sample_name"],
-#            ),
+        arcashla=expand(
+            "output/{sample}/arcashla/{sample}.genotype.json",
+            sample=pep.sample_table["sample_name"],
+        ),
+        benchmarks="benchmarks/s.tsv",
 
 
 rule T1K:
@@ -40,6 +39,8 @@ rule T1K:
         genotype="output/{sample}/T1K/{sample}_genotype.tsv",
     log:
         "output/log/{sample}.T1K.txt",
+    benchmark:
+        repeat("benchmarks/T1K_{sample}.tsv", config["repeat"])
     container:
         containers["T1K"]
     threads: 1
@@ -65,6 +66,8 @@ rule seq2hla:
         ambiguity="output/{sample}/seq2hla/{sample}.ambiguity",
     log:
         "output/log/{sample}.seq2hla.txt",
+    benchmark:
+        repeat("benchmarks/seq2hla_{sample}.tsv", config["repeat"])
     container:
         containers["seq2hla"]
     threads: 1
@@ -77,30 +80,6 @@ rule seq2hla:
         """
 
 
-rule arcashla:
-    input:
-        f=get_forward,
-        r=get_reverse,
-    output:
-        genotype="output/{sample}/arcashla/{sample}.genotype.json",
-    log:
-        "output/log/{sample}.arcashla.txt",
-    container:
-        containers["arcashla"]
-    threads: 1
-    shell:
-        """
-        arcasHLA genotype \
-        {input.f} \
-        {input.r} \
-        --genes A,B,C \
-        --outdir $(dirname {output.genotype}) \
-        --threads {threads} \
-        --verbose \
-        --log {log}
-        """
-
-
 rule optitype:
     input:
         f=get_forward,
@@ -109,6 +88,8 @@ rule optitype:
         genotype="output/{sample}/optitype/{sample}.tsv",
     log:
         "output/log/{sample}.optitype.txt",
+    benchmark:
+        repeat("benchmarks/optitype_{sample}.tsv", config["repeat"])
     container:
         containers["optitype"]
     threads: 1
@@ -131,6 +112,8 @@ rule spechla:
         result="output/{sample}/spechla/hla.result.txt",
     log:
         "output/log/{sample}.spechla.txt",
+    benchmark:
+        repeat("benchmarks/spechla_{sample}.tsv", config["repeat"])
     threads: 1
     shell:
         """
@@ -143,4 +126,55 @@ rule spechla:
         -o $(dirname {output.result}) \
         2> {log} 
         mv output/{wildcards.sample}/spechla/{wildcards.sample}/hla.result.txt {output.result}
+        """
+
+
+rule arcashla:
+    input:
+        f=get_forward,
+        r=get_reverse,
+    output:
+        genotype="output/{sample}/arcashla/{sample}.genotype.json",
+    log:
+        "output/log/{sample}.arcashla.txt",
+    benchmark:
+        repeat("benchmarks/arcashla_{sample}.tsv", config["repeat"])
+    threads: 1
+    shell:
+        """
+        arcasHLA genotype \
+        {input.f} \
+        {input.r} \
+        --genes A,B,C \
+        --outdir $(dirname {output.genotype}) \
+        --threads {threads} \
+        --verbose \
+        --log {log}
+        """
+
+
+rule gather_benchmarks:
+    input:
+        T1K=expand("benchmarks/T1K_{sample}.tsv", sample=pep.sample_table["sample_name"]),
+        seq2hla=expand("benchmarks/seq2hla_{sample}.tsv", sample=pep.sample_table["sample_name"]),
+        optitype=expand("benchmarks/optitype_{sample}.tsv", sample=pep.sample_table["sample_name"]),
+        spechla=expand("benchmarks/spechla_{sample}.tsv", sample=pep.sample_table["sample_name"]),
+        arcashla=expand("benchmarks/arcashla_{sample}.tsv", sample=pep.sample_table["sample_name"]),
+        script=srcdir("scripts/parse-benchmark.py"),
+    output:
+        seconds="benchmarks/s.tsv",
+        cpu_time="benchmarks/cpu_time.tsv",
+        max_rss="benchmarks/max_rss.tsv",
+    log:
+        "log/gather_benchmarks.txt",
+    container:
+        containers["dnaio"]
+    shell:
+        """
+        for column in s cpu_time max_rss; do
+          python3 {input.script} \
+              --samples {params.samples} \
+              --tools T1K seq2hla optitype spechla arcashla \
+              --column ${{column}} > benchmarks/${{column}}.tsv 2>> {log}
+        done
         """
