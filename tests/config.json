@@ -1,3 +1,4 @@
 {
-  "T1K_fasta": "tests/data/hlaidx_rna_seq.fa"
+  "T1K_fasta": "tests/data/hlaidx_rna_seq.fa",
+  "spechla_path": "../SpecHLA"
 }

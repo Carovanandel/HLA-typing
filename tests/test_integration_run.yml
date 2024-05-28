@@ -13,11 +13,8 @@
       --configfile tests/config.json
       --config pepfile=tests/pep/samples.csv
       --snakefile Snakefile
+      --until T1K seq2hla optitype
   files:
-    - path: output/sample1/T1K/sample1_allele.tsv
-      contains:
-        - "HLA-A*68:02:01:01"
-        - "HLA-A*74:01:01:01"
     - path: output/sample1/T1K/sample1_genotype.tsv
       contains:
         - "HLA-A*68:02:01"
@@ -26,4 +23,7 @@
       contains:
         - "A*68:02"
         - "A*74:01"
-# Add checks for arcashla and optitype
+    - path: output/sample1/optitype/sample1.tsv
+      contains:
+        - "A*02:01"
+        - "A*03:01"

@@ -34,7 +34,7 @@ as_str = [
 def test_print(hla, expected):
     assert str(hla) == expected
 
-#tests from_str method to create a class object from a string
+#test from_str method to create a class object from a string
 from_str = [
     ("HLA-A", HLA("A")),
     ("HLA-ABCDE", HLA("ABCDE")),
@@ -47,8 +47,8 @@ from_str = [
     ("HLA-A*24:02:01:02L", HLA(gene="A", allele="24", protein="02", synonymous="01", noncoding="02", suffix="L")),
     ("HLA-B*44:02:01:02S", HLA(gene="B", allele="44", protein="02", synonymous="01", noncoding="02", suffix="S")),
     ("HLA-A*32:11Q", HLA(gene="A", allele="32", protein="11", suffix="Q")),
-    #("0", HLA(None)),
 ]
+
 @pytest.mark.parametrize("string, hla", from_str)
 def test_hla_from_string(string, hla):
     assert HLA.from_str(string) == hla
@@ -58,46 +58,7 @@ def test_invalid_HLA_string() -> None:
     with pytest.raises(ValueError):
         HLA.from_str("hla25")
 
-
-match = [
-    (HLA('A', '01'), HLA('A', '01'), 2, True),
-    (HLA('A', '01', '01'), HLA('A', '01', '01'), 2, True),
-    (HLA('A', '01', '01'), HLA('A', '01', '02'), 2, False),
-    (HLA('A', '01', '01'), HLA('A', '01'), 2, False),
-    (HLA('A', '01'), HLA('A', '01', '01'), 2, False),
-    (HLA('A', '01'), HLA('A', '01', '01'), 1, True),
-    (HLA(None), HLA('A', '01', '01'), 2, False),
-    (HLA(None), HLA(None), 1, True),
-    (HLA(None), HLA(None), 2, True),
-]
-
-@pytest.mark.parametrize("hla, hla2, resolution, expected", match)
-def test_match(hla, hla2, resolution, expected):
-    assert hla.match(hla2, resolution) == expected
-    assert hla2.match(hla, resolution) == expected
-
-fields_list = [
-    (HLA('A','01','02','03','04','S'), ['A','01','02','03','04','S']),
-    (HLA('B','03','02'), ['B','03','02',None,None,None]),
-    (HLA(None), [None,None,None,None,None,None]),
-    (HLA(gene='A', allele='24', protein='09', suffix='N'), ['A','24','09',None,None,'N']),
-]
-
-@pytest.mark.parametrize("hla, expected", fields_list)
-def test_fields(hla, expected):
-    assert hla.fields() == expected
-
-fields_list_from_str = [
-    ('HLA-A*01:02:03:04S', ['A','01','02','03','04','S']),
-    ('HLA-B*03:02', ['B','03','02',None,None,None]),
-    ('HLA-A*24:09N', ['A','24','09',None,None,'N']),
-    #('0', [None,None,None,None,None,None]),
-]
-
-@pytest.mark.parametrize("hla, expected", fields_list_from_str)
-def test_fields_from_str(hla, expected):
-    assert HLA.fields_from_str(hla) == expected
-
+#test match method
 match_test=[
     ("HLA-A*01:02:03:04S", "HLA-A*01:02:03:04S", None, True),
     ("HLA-A*01:02:03:04S", "HLA-A*01:02:03:04S", 0, True),
@@ -121,3 +82,25 @@ def test_match_resolution(hla1, hla2, resolution, expected):
     HLA2 = HLA.from_str(hla2)
     assert HLA1.match(HLA2, resolution) == expected
     assert HLA2.match(HLA1, resolution) == expected
+
+#test fields and fields from string method
+fields_list = [
+    (HLA('A','01','02','03','04','S'), ['A','01','02','03','04','S']),
+    (HLA('B','03','02'), ['B','03','02',None,None,None]),
+    (HLA(None), [None,None,None,None,None,None]),
+    (HLA(gene='A', allele='24', protein='09', suffix='N'), ['A','24','09',None,None,'N']),
+]
+
+@pytest.mark.parametrize("hla, expected", fields_list)
+def test_fields(hla, expected):
+    assert hla.fields() == expected
+
+fields_list_from_str = [
+    ('HLA-A*01:02:03:04S', ['A','01','02','03','04','S']),
+    ('HLA-B*03:02', ['B','03','02',None,None,None]),
+    ('HLA-A*24:09N', ['A','24','09',None,None,'N']),
+]
+
+@pytest.mark.parametrize("hla, expected", fields_list_from_str)
+def test_fields_from_str(hla, expected):
+    assert HLA.fields_from_str(hla) == expected

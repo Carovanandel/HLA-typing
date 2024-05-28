@@ -26,7 +26,7 @@ rule all:
             "output/{sample}/arcashla/{sample}.genotype.json",
             sample=pep.sample_table["sample_name"],
         ),
-        benchmarks="benchmarks/s.tsv",
+        gather_benchmarks="benchmarks/s.tsv",
 
 
 rule T1K:
@@ -115,9 +115,11 @@ rule spechla:
     benchmark:
         repeat("benchmarks/spechla_{sample}.tsv", config["repeat"])
     threads: 1
+    params:
+        spechla_path=config["spechla_path"],
     shell:
         """
-        bash ../SpecHLA/script/whole/SpecHLA.sh \
+        bash {params.spechla_path}/script/whole/SpecHLA.sh \
         -u 1 \
         -j {threads} \
         -n {wildcards.sample} \
@@ -145,7 +147,7 @@ rule arcashla:
         arcasHLA genotype \
         {input.f} \
         {input.r} \
-        --genes A,B,C \
+        --genes A,B,C,DRB1,DRB3,DRB5,DQA1,DQB1,DPB1 \
         --outdir $(dirname {output.genotype}) \
         --threads {threads} \
         --verbose \
@@ -155,12 +157,24 @@ rule arcashla:
 
 rule gather_benchmarks:
     input:
-        T1K=expand("benchmarks/T1K_{sample}.tsv", sample=pep.sample_table["sample_name"]),
-        seq2hla=expand("benchmarks/seq2hla_{sample}.tsv", sample=pep.sample_table["sample_name"]),
-        optitype=expand("benchmarks/optitype_{sample}.tsv", sample=pep.sample_table["sample_name"]),
-        spechla=expand("benchmarks/spechla_{sample}.tsv", sample=pep.sample_table["sample_name"]),
-        arcashla=expand("benchmarks/arcashla_{sample}.tsv", sample=pep.sample_table["sample_name"]),
+        T1K=expand(
+            "benchmarks/T1K_{sample}.tsv", sample=pep.sample_table["sample_name"]
+        ),
+        seq2hla=expand(
+            "benchmarks/seq2hla_{sample}.tsv", sample=pep.sample_table["sample_name"]
+        ),
+        optitype=expand(
+            "benchmarks/optitype_{sample}.tsv", sample=pep.sample_table["sample_name"]
+        ),
+        spechla=expand(
+            "benchmarks/spechla_{sample}.tsv", sample=pep.sample_table["sample_name"]
+        ),
+        arcashla=expand(
+            "benchmarks/arcashla_{sample}.tsv", sample=pep.sample_table["sample_name"]
+        ),
         script=srcdir("scripts/parse-benchmark.py"),
+    params:
+        samples=list(pep.sample_table["sample_name"]),
     output:
         seconds="benchmarks/s.tsv",
         cpu_time="benchmarks/cpu_time.tsv",

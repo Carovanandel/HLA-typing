@@ -13,7 +13,7 @@ hla_list = [
     ('HLA-B*01:01/HLA-B*01', ([HLA('B','01'), HLA('B','01','01')], 'valid')),
     ('HLA-C*01:01N', ([HLA('C','01','01',None,None,'N')], 'valid')),
     ('', ([HLA('empty')], 'empty')),
-    ('X', ([HLA('X')], 'inc_nomen')),
+    #('X', ([HLA('X')], 'inc_nomen')), support for 'X' has been removed
 ]
 
 @pytest.mark.parametrize("hla, expected", hla_list)
