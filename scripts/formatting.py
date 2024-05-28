@@ -2,11 +2,14 @@ import csv
 import json #arcashla output is in .json format
 
 #headers for output csv files
-#header_full: all 10 genes in lab result - for T1K and arcasHLA
-header_full = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HLA-C', 'HLA-C (2)',
+header_T1K = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HLA-C', 'HLA-C (2)',
     'HLA-DRB1', 'HLA-DRB1 (2)', 'HLA-DRB3', 'HLA-DRB3 (2)', 'HLA-DRB4', 'HLA-DRB4 (2)',
     'HLA-DRB5', 'HLA-DRB5 (2)', 'HLA-DQA1', 'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)',
     'HLA-DPB1', 'HLA-DPB1 (2)']
+
+header_arcashla = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HLA-C', 'HLA-C (2)',
+    'HLA-DRB1', 'HLA-DRB1 (2)', 'HLA-DRB3', 'HLA-DRB3 (2)', 'HLA-DRB5', 'HLA-DRB5 (2)', 'HLA-DQA1', 
+    'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)', 'HLA-DPB1', 'HLA-DPB1 (2)']
 
 header_seq2hla = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HLA-C', 'HLA-C (2)',
     'HLA-DRB1', 'HLA-DRB1 (2)', 'HLA-DQA1', 'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)',
@@ -18,9 +21,9 @@ header_spechla = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HL
     'HLA-DRB1', 'HLA-DRB1 (2)', 'HLA-DQA1', 'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)', 'HLA-DPB1', 'HLA-DPB1 (2)']
 
 #create a list of the sample names from the lab output (hla-type.csv)
-hla_type_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/lab/raw-hla-type.csv'
+hla_type_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/lab/full-hla-type.csv'
 hla_type = open(hla_type_path, newline='')
-hla_type_reader = csv.DictReader(hla_type, fieldnames=header_full)
+hla_type_reader = csv.DictReader(hla_type, fieldnames=header_T1K)
 
 sample_names = []
 next(hla_type_reader) #skip header
@@ -83,7 +86,7 @@ for sample in sample_names:
 #t1k combined output file
 t1k_output_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/t1k-output.csv'
 t1k_output = open(t1k_output_path, 'w', newline='')
-t1k_output_writer = csv.DictWriter(t1k_output, fieldnames=header_full)
+t1k_output_writer = csv.DictWriter(t1k_output, fieldnames=header_T1K)
 t1k_output_writer.writeheader()
 
 #function to separate options by '/' - for T1K
@@ -96,7 +99,7 @@ def convert_options(genotype):
 
 #extract genotypes from T1K output files and create combined output file
 for sample in sample_names:
-    output_row_t1k = {column: '' for column in header_full} #create empty output row
+    output_row_t1k = {column: '' for column in header_T1K} #create empty output row
     output_row_t1k['sample_name'] = sample 
     sample_path = path = f'/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output/{sample}/T1K/{sample}_genotype.tsv'
     sample_open = open(sample_path, newline='')
@@ -141,16 +144,16 @@ spechla_output_writer.writeheader()
 #create empty output row for spechla
 output_row_spechla = {column: '' for column in header_spechla}
 
-#header of spechla output files
+#header of spechla output files (order is different in these files)
 spechla_fieldnames = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 
                     'HLA-C', 'HLA-C (2)', 'HLA-DPA1', 'HLA-DPA1 (2)', 'HLA-DPB1', 
                     'HLA-DPB1 (2)', 'HLA-DQA1', 'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)', 
                     'HLA-DRB1', 'HLA-DRB1 (2)']
 
 #extract spechla output
-for sample in ['102581-002-004', '102581-002-006', '102581-002-007', '102581-002-010', '102581-002-014']: #only first 5 samples have been analyzed so far
+for sample in sample_names:
     output_row_spechla['sample_name'] = sample
-    sample_path = f'/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output/{sample}/spechla/{sample}/hla.result.txt'
+    sample_path = f'/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output/{sample}/spechla//hla.result.txt'
     sample_open = open(sample_path, newline='')
     sample_reader = csv.DictReader(sample_open, delimiter='\t', fieldnames= spechla_fieldnames)
     next(sample_reader) #skip database version row
@@ -165,12 +168,12 @@ for sample in ['102581-002-004', '102581-002-006', '102581-002-007', '102581-002
 #arcashla combined output file
 arcashla_output_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/arcashla-output.csv'
 arcashla_output = open(arcashla_output_path, 'w')
-arcashla_output_writer = csv.DictWriter(arcashla_output, fieldnames=header_full)
+arcashla_output_writer = csv.DictWriter(arcashla_output, fieldnames=header_arcashla)
 arcashla_output_writer.writeheader()
 
 #extract arcashla output
-for sample in ['102581-002-004', '102581-002-006', '102581-002-007', '102581-002-010', '102581-002-014']: #only first 5 samples have been analyzed so far
-    output_row_arcashla = {column : '' for column in header_full} #create empty output row
+for sample in sample_names:
+    output_row_arcashla = {column : '' for column in header_arcashla} #create empty output row
     output_row_arcashla['sample_name'] = sample
     sample_path = f'/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output/{sample}/arcashla/{sample}.genotype.json'
     sample_open = open(sample_path, 'r')

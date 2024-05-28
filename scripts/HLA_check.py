@@ -8,10 +8,11 @@ import argparse
 def get_hla_list(options):
     """Return a list of hla class objects from a string, and the alelle validity"""
     hla_list = []
-    if options == 'X': 
-        hla_list = [HLA('X')]
-        allele_validity = 'inc_nomen' #incorrect nomenclature
-    elif options == '':
+    #optional: support for 'X' (incorrect nomenclature)
+    # if options == 'X': 
+    #     hla_list = [HLA('X')]
+    #     allele_validity = 'inc_nomen'
+    if options == '':
         hla_list = [HLA('empty')]
         allele_validity = 'empty' #empty allele
     else:
@@ -27,21 +28,12 @@ def get_hla_class(sample, gene, input1_rows, input2_rows):
     hla1_2, allele_validity1_2 = get_hla_list(input1_rows[sample][f'{gene} (2)'])
     hla2_1, allele_validity2_1 = get_hla_list(input2_rows[sample][gene])
     hla2_2, allele_validity2_2 = get_hla_list(input2_rows[sample][f'{gene} (2)'])
+    
+    count_empty = max(sum([allele_validity1_1 == 'empty', allele_validity1_2 == 'empty']), 
+                  sum([allele_validity2_1 == 'empty', allele_validity2_2 == 'empty']))
+    count_valid = 2 - count_empty
 
-    count_valid = 0 #counts valid alleles
-    count_inc_nomen = 0 #counts alleles with incorrect nomenclature
-    count_empty = 0 #counts empty alleles
-    if 'empty' in (allele_validity1_1, allele_validity1_2, allele_validity2_1, allele_validity2_2):
-        count_empty += 2
-    else:
-        if 'inc_nomen' in (allele_validity1_1, allele_validity2_1):
-            count_inc_nomen += 1
-        else: count_valid += 1
-        if 'inc_nomen' in (allele_validity1_2, allele_validity2_2):
-            count_inc_nomen += 1
-        else: count_valid += 1
-
-    return hla1_1, hla1_2, hla2_1, hla2_2, [count_valid, count_inc_nomen, count_empty]
+    return hla1_1, hla1_2, hla2_1, hla2_2, [count_valid, count_empty]
 
 def check_match(hla1, hla2, resolution, method):
     """Test the match between two hla lists, for a given resolution and method"""
@@ -74,9 +66,13 @@ def match_pairs(hla1_1, hla1_2, hla2_1, hla2_2, resolution, method):
             if check_match(pair[0], pair[1], resolution, method): 
                 score += 1
                 matched_pairs.append(pair_nr)
+                #debugging - print matches:
+                #print(f'match: {pair[0]} and {pair[1]}')
             pair_nr += 1
         max_score = max(max_score, score)
     
+    #dubgging - print matched pairs and score
+    #print(f'score: {max_score}, matched_pairs: {matched_pairs}')
     return max_score, matched_pairs
 
 def mismatch_message(f, input1_rows, i, gene, score, matched_pairs, hla1_1, hla1_2, hla2_1, hla2_2):
@@ -167,8 +163,7 @@ def main(input1, input2, resolution_arg, method, genes, outdir):
             score, matched_pairs = match_pairs(hla1_1, hla1_2, hla2_1, hla2_2, resolution, method)
             allele_score += score
             total_valid += alleles_validity[0]
-            total_inc_nomen += alleles_validity[1]
-            total_empty += alleles_validity[2]
+            total_empty += alleles_validity[1]
             mismatch_message(f, input1_rows, i, gene, score, matched_pairs, hla1_1, hla1_2, hla2_1, hla2_2)
     if total_valid != 0:
         perc_match = round(100*allele_score/total_valid, 2)
@@ -177,8 +172,7 @@ def main(input1, input2, resolution_arg, method, genes, outdir):
         perc_match = '-'
     if f != sys.stdout:
         print(f'Percentage of alleles that match: {str(perc_match)}% \nsee {outdir}/{output_file} for detailed result')
-    f.write(f'\nNumber of alleles excluded due to incorrect nomenclature: {total_inc_nomen}\n')
-    f.write(f'Number of alleles excluded due to an empty result: {total_empty}\n')
+    f.write(f'\nNumber of alleles excluded due to an empty result: {total_empty}\n')
     f.write(f'Number of alleles included: {total_valid}\n')
     f.write(f'Number of included alleles that match: {allele_score}\n')
     f.write(f'Percentage of included alleles that match: {str(perc_match)}%\n')

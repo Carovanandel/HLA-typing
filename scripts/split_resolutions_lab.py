@@ -11,7 +11,7 @@ lab_hla_open = open(lab_hla_path, 'r', newline='')
 lab_hla_reader = csv.DictReader(lab_hla_open, delimiter=',', fieldnames=header_full)
 next(lab_hla_reader) #skip header
 
-output1_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/lab/1-fields-hla-type.csv'
+output1_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/lab/1-field-hla-type.csv'
 output1_open = open(output1_path, 'w', newline='')
 output1_writer = csv.DictWriter(output1_open, delimiter=',', fieldnames=header_full)
 output1_writer.writeheader()
