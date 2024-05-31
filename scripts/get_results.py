@@ -31,8 +31,7 @@ def run_hla_check(tool, lab, gene, resolution):
         return None, None, None, None
 
 #create result.csv file
-results_header = ['Tool', 'Gene', 'Resolution', 'Method', 'Total empty', 'Total valid',
-                  'Checked at 1-field', 'Matched at 1-field', 'Checked at 2-fields', 'Matched at 2-fields', 'Checked at 3-fields', 'Matched at 3-fields', 'Number matched', 'Percentage matched']
+results_header = ['Tool', 'Gene', 'Resolution', 'Method', 'Total empty', 'Total valid', 'Number matched', 'Percentage matched']
 results_file = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/results.csv'
 open_results = open(results_file, 'w', newline = '')
 results_writer = csv.DictWriter(open_results, delimiter=',', fieldnames=results_header)
@@ -88,19 +87,7 @@ for tool in [t1k, seq2hla, optitype, spechla, arcashla]:
             if resolution in ['None', 1]:
                 total_empty, total_valid, num_match, perc_match = run_hla_check(tool['tool'], 'full-hla-type', gene, resolution)
             elif resolution in [2, 3]:
-                fields_split = two_fields_split if resolution == 2 else three_fields_split
-                results = [run_hla_check(tool['tool'], lab, gene, resolution) for lab, resolution in fields_split]
-                empty, total_valid, num_match = (
-                sum(result[i] for result in results) for i in range(3))
-                one_match, two_match, three_match, one_checked, two_checked, three_checked = match_fields(resolution, results)
-                results_row.update({'Matched at 1-field': one_match,
-                                    'Matched at 2-fields': two_match,
-                                    'Matched at 3-fields': three_match,
-                                    'Checked at 1-field': one_checked,
-                                    'Checked at 2-fields': two_checked,
-                                    'Checked at 3-fields': three_checked})
-                total_empty = run_hla_check(tool['tool'], 'full-hla-type', gene, resolution)[0]
-                perc_match = round(100*num_match/total_valid, 2) if total_valid != 0 else '-'
+                total_empty, total_valid, num_match, perc_match = run_hla_check(tool['tool'], f'{resolution}-fields-hla-type', gene, resolution)
             results_row.update({'Total empty': total_empty,
                                 'Total valid': total_valid,
                                 'Number matched': num_match,
