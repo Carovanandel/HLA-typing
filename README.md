@@ -29,11 +29,12 @@ mkdir -p ${SINGULARITY_CACHEDIR}
 
 The snakemake pipeline can then be executed with this environment using:
 ```bash
-snakemake --printshellcmds --jobs 1 --latency-wait 5 --notemp --keep-incomplete --use-singularity --singularity-args ' --cleanenv --bind /tmp' --singularity-prefix '~/.singularity/cache/snakemake' --configfile tests/config.json --config pepfile=tests/pep/100_samples.csv --snakefile Snakefile
+snakemake --printshellcmds --jobs 1 --latency-wait 5 --notemp --keep-incomplete --use-singularity --singularity-args ' --cleanenv --bind /tmp' --singularity-prefix '~/.singularity/cache/snakemake' --configfile tests/config.json --config pepfile=tests/pep/100_samples.csv --snakefile Snakefile --until T1K seq2hla optitype
 ```
 
-## Installation for running the specHLA rule:
-Download the specHLA repository from github and create the environment 'spechla_env' using the environment-spechla.yml file in this (HLA-typing) repository
+## Installation for running the SpecHLA rule:
+As SpecHLA currently does not have a container in BioContainers, the tool has to be installed in a separate environment.
+Download the specHLA repository from github and create a conda environment 'spechla_env' using the environment-spechla.yml file in this repository
 ```bash
 git clone https://github.com/deepomicslab/SpecHLA.git --depth 1
 cd SpecHLA/
@@ -51,6 +52,30 @@ bash index.sh
 The specHLA snakemake rule can then be executed with this environment active, using:
 ```bash
 snakemake --printshellcmds --jobs 1 --latency-wait 5 --notemp --keep-incomplete --configfile tests/config.json --config pepfile=tests/pep/100_samples.csv --cores 1 --snakefile Snakefile --until spechla
+```
+## Installation for running the ArcasHLA rule
+ArcasHLA does have a container in BioContainers, but the downloading of the IMGT/HLA database 
+during installation can give issues with the read-only file system of a container. Thus, ArcasHLA also 
+needs to be installed in a separate environment. Create a conda environment using the environment-arcashla.yml file in this repository
+```bash
+conda env create -f ../HLA-Typing/environment-arcashla.yml
+conda activate arcashla
+```
+
+Add the ArcasHLA bin folder to the system PATH variable, so the ArcasHLA commands are found
+```bash
+export PATH=~/miniforge3/envs/arcashla/bin:$PATH
+```
+
+Currently, a bug in ArcasHLA prevents you from using the latest IMGT/HLA database version. Another bug prevents you from downloading older IMGT/HLA databases. See [pull request.](https://github.com/RabadanLab/arcasHLA/issues/133)
+Workaround: replace the ```~/miniforge3/envs/snakemake-arcas-hla/share/arcas-hla-0.6.0-0/dat``` folder with the ```arcas-hla-0.6.0-0/dat``` folder from this repository, which contains version 3.55.0 of the IMGT/HLA database
+```bash
+mv arcas-hla-0.6.0-0/dat ~/miniforge3/envs/snakemake-arcas-hla/share/arcas-hla-0.6.0-0/dat
+```
+
+The ArcasHLA snakemake rule can then be executed with this environment active, using:
+```bash
+snakemake --printshellcmds --jobs 1 --latency-wait 5 --notemp --keep-incomplete --configfile tests/config.json --config pepfile=tests/pep/100_samples.csv --cores 1 --snakefile Snakefile --until arcashla
 ```
 
 ## Settings
