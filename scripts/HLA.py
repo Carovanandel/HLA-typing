@@ -3,9 +3,10 @@ import re
 from typing import List, Union, Optional
 
 class HLA:
-    #initiate hla class
+    #HLA class with variables for each HLA resolution field
     def __init__(
-            self, gene: Optional[str],
+            self, 
+            gene: Optional[str],
             allele: Optional[str] = None,
             protein: Optional[str] = None,
             synonymous:Optional[str] = None,
@@ -18,7 +19,7 @@ class HLA:
         self.noncoding = noncoding
         self.suffix = suffix
 
-    #represent hla as string
+    #represent HLA as string
     def __str__(self) -> str:
         if self.gene is None:
             return '0'  #return 0 for empty HLA class
@@ -36,8 +37,7 @@ class HLA:
         if self.suffix is not None:
             s += self.suffix
         return s
-
-    #repr() calls str()
+        
     def __repr__(self) -> str:
         return str(self)
 
@@ -50,12 +50,15 @@ class HLA:
             self.gene == other.gene,
             self.allele == other.allele,
             self.protein == other.protein,
+            self.synonymous == other.synonymous,
+            self.noncoding == other.noncoding,
+            self.suffix == other.suffix
         ))
 
-    #create hla class object from string
+    #create HLA class object from string
     @classmethod
     def from_str(cls, hla: str) -> "HLA":
-        # HLA-DRB1*13:01:01:02Q
+        #nomenclature example: HLA-DRB1*13:01:01:02Q
         pattern = r"^HLA-(\w+)(\*\d+)?(:\d+)?(:\d+)?(:\d+)?([LSCAQN])?$"
         m = re.match(pattern, hla)
 
@@ -69,16 +72,16 @@ class HLA:
         noncoding = m.group(5)
         suffix = m.group(6)
 
-        # Remember to cut off the *
+        #cut off the *
         allele = allele[1:] if allele else None
-        # Remember to cut off the colons
+        #cut off the colons
         protein = protein[1:] if protein else None
         synonymous = synonymous[1:] if synonymous else None
         noncoding = noncoding[1:] if noncoding else None
 
         return HLA(gene, allele, protein, synonymous, noncoding, suffix)
 
-    #return a list of the hla class attributes
+    #return a list of the HLA resolution fields
     def fields(self) -> List[Union[str, None]]:
         return [
             self.gene,
@@ -89,13 +92,13 @@ class HLA:
             self.suffix
         ]
 
-    #return a list of the hla class attributes from a string
+    #return a list of the HLA fields from a string
     @classmethod
     def fields_from_str(cls, hla: str) -> List[Union[str, None]]:
         hla_class = HLA.from_str(hla)
         return hla_class.fields()
     
-    #test if two hla-types match
+    #test if two HLA types match at a given resolution
     def match(self, other: "HLA", resolution: Union[int, None] = None) -> bool:
         self_fields: List[Optional[str]]
         other_fields: List[Optional[str]]

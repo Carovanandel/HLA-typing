@@ -1,5 +1,7 @@
 import csv
 
+### Use this script to parse the lab output into the correct format
+
 #input file - hla-type.csv
 input_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/lab/raw-hla-type.csv'
 input_open = open(input_path, 'r', newline='')
@@ -21,7 +23,7 @@ def format_options(input_row, allele):
     i = 0
     for option in input_row[allele].split('/'): #split multiple genotype options
         if i == 0: genotype += f'HLA-{option}' #the first option already includes the hla gene
-        else: genotype += f'/HLA-{hla_gene}*{option}' #add the hla gene to all options
+        else: genotype += f'/HLA-{hla_gene}*{option}' #add the hla gene to all other options
         i +=1
     
     return genotype

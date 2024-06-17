@@ -1,6 +1,9 @@
 import csv
 from HLA import HLA
 
+### Use this script to create lab output files with HLA types of more than 2 and more than 3 resolution fields, 
+### used by get_results.py to calculate accuracy at these resolutions
+
 header_full = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HLA-C', 'HLA-C (2)',
     'HLA-DRB1', 'HLA-DRB1 (2)', 'HLA-DRB3', 'HLA-DRB3 (2)', 'HLA-DRB4', 'HLA-DRB4 (2)',
     'HLA-DRB5', 'HLA-DRB5 (2)', 'HLA-DQA1', 'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)',
@@ -37,13 +40,13 @@ for input_row in lab_hla_reader:
                     lower_than_3 = True
                 elif hla.fields()[3] == None:
                     lower_than_3 = True
-        if lower_than_2 and lower_than_3: #remove allele from both 2- and 3-fields output
+        if lower_than_2 and lower_than_3: #lower than 2 fields resolution > remove allele from both 2- and 3-fields output
             output2_row[allele] = ''
             output3_row[allele] = ''
-        elif not lower_than_2 and lower_than_3: #remove allele in 3-fields output, but leave in 2-fields output
+        elif not lower_than_2 and lower_than_3: #2 fields resolution > remove allele in 3-fields output, but leave in 2-fields output
             output2_row[allele] = input_row[allele]
             output3_row[allele] = ''
-        else: #leave genotype in both  2 and 3-field output
+        else: #3 fields or higher resolution > leave genotype in both 2- and 3-field output
             output2_row[allele] = input_row[allele]
             output3_row[allele] = input_row[allele]
     output2_writer.writerow(output2_row)

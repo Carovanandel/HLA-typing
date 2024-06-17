@@ -1,5 +1,10 @@
-from HLA import HLA
 import pytest
+import sys
+import os
+#get the directory path with the HLA.py script to import functions
+hla_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../scripts')) 
+sys.path.insert(0, hla_dir)
+from HLA import HLA
 
 #test class initialization
 def test_HLA():

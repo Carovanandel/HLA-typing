@@ -1,7 +1,10 @@
 import csv
 import json #arcashla output is in .json format
 
-#headers for output csv files
+### Use this script to parse the tool outputs for all samples into a combined file for each tool in a common format
+### This script supports the following tools: T1K, ArcasHLA, Seq2HLA, OptiType and SpecHLA. Other tools can be added
+
+#the headers that the formatted file of each tool should use (depends on supported genes)
 header_T1K = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HLA-C', 'HLA-C (2)',
     'HLA-DRB1', 'HLA-DRB1 (2)', 'HLA-DRB3', 'HLA-DRB3 (2)', 'HLA-DRB4', 'HLA-DRB4 (2)',
     'HLA-DRB5', 'HLA-DRB5 (2)', 'HLA-DQA1', 'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)',
@@ -20,7 +23,7 @@ header_optitype = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'H
 header_spechla = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HLA-C', 'HLA-C (2)', 
     'HLA-DRB1', 'HLA-DRB1 (2)', 'HLA-DQA1', 'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)', 'HLA-DPB1', 'HLA-DPB1 (2)']
 
-#create a list of the sample names from the lab output (hla-type.csv)
+#create a list of the sample names from the lab output (hla-type.csv), assuming the tool outputs include the same samples
 hla_type_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/lab/full-hla-type.csv'
 hla_type = open(hla_type_path, newline='')
 hla_type_reader = csv.DictReader(hla_type, fieldnames=header_T1K)
@@ -30,12 +33,12 @@ next(hla_type_reader) #skip header
 for row in hla_type_reader:
     sample_names.append(row["sample_name"])
 
-#genes to extract from the sample output files (both with and without HLA- prefix)
+#genes to extract from the tool sample output files (both with and without HLA- prefix)
 genes = ['HLA-A', 'HLA-B', 'HLA-C', 'HLA-DRB1', 'HLA-DRB3', 'HLA-DRB4', 'HLA-DRB5', 'HLA-DQA1', 'HLA-DQB1', 'HLA-DPB1',
          'A', 'B', 'C', 'DRB1', 'DRB3', 'DRB4', 'DRB5', 'DQA1', 'DQB1', 'DPB1']
 
 ### Format Seq2HLA ###
-#seq2hla combined output file
+#seq2hla formatted output file
 seq2hla_output_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/seq2hla-output.csv'
 seq2hla_output = open(seq2hla_output_path, 'w', newline='')
 seq2hla_output_writer = csv.DictWriter(seq2hla_output, fieldnames=header_seq2hla)
@@ -53,7 +56,7 @@ for sample in sample_names:
         gene = row['Locus']
         if gene in genes:
              #set allele1 and allele2 variables
-            if "'" in row['Allele 1']:  #remove the apostrophe at the end of some of the results
+            if "'" in row['Allele 1']:  #remove the apostrophe at the end of some of the results (meaning is unclear)
                 allele1 = row['Allele 1'][:-1]
             else: allele1 = row['Allele 1']
             if "'" in row['Allele 2']:
@@ -72,7 +75,7 @@ for sample in sample_names:
             #set allele1 and allele2 variables
             if "'" in row['Allele 1']:  #remove the apostrophe at the end of some of the results
                 allele1 = f"HLA-{row['Allele 1'][:-1]}"
-            elif "no" in row['Allele 1']: allele1 = '' #'no' alleles need to be empty
+            elif "no" in row['Allele 1']: allele1 = '' #'no' alleles in seq2hla output > empty
             else: allele1 = f"HLA-{row['Allele 1']}" 
             if "'" in row['Allele 2']:
                 allele2 = f"HLA-{row['Allele 2'][:-1]}"
@@ -83,13 +86,13 @@ for sample in sample_names:
     seq2hla_output_writer.writerow(output_row_seq2hla)
 
 ### Format T1K ###
-#t1k combined output file
+#t1k formatted output file
 t1k_output_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/t1k-output.csv'
 t1k_output = open(t1k_output_path, 'w', newline='')
 t1k_output_writer = csv.DictWriter(t1k_output, fieldnames=header_T1K)
 t1k_output_writer.writeheader()
 
-#function to separate options by '/' - for T1K
+#function to separate options by '/' - only used for T1K, other tools only give one option
 def convert_options(genotype):
     if genotype == '0':
         return genotype
@@ -97,7 +100,7 @@ def convert_options(genotype):
         genotype_options = genotype.split(',')
         return '/'.join(genotype_options)
 
-#extract genotypes from T1K output files and create combined output file
+#extract genotypes from T1K output files and create formatted output file
 for sample in sample_names:
     output_row_t1k = {column: '' for column in header_T1K} #create empty output row
     output_row_t1k['sample_name'] = sample 
@@ -107,14 +110,14 @@ for sample in sample_names:
     for row in sample_reader:
         gene = row[0]
         if gene in genes:
-            if row[2] == '.': output_row_t1k[gene] = '' #no genotype for allele1 > '' in output
-            else: output_row_t1k[gene] = convert_options(row[2]) #row[2]: allele 1
-            if row[5] == '.': output_row_t1k[gene + ' (2)'] = output_row_t1k[gene] #homozygous > allele 2 = allele 1
-            else: output_row_t1k[gene + ' (2)'] = convert_options(row[5]) #row[5]: allele 2
+            if row[2] == '.': output_row_t1k[gene] = '' #'.' allele1 > empty
+            else: output_row_t1k[gene] = convert_options(row[2]) #t1k column 2: allele 1
+            if row[5] == '.': output_row_t1k[gene + ' (2)'] = output_row_t1k[gene] #'.' allele 2 > homozygous
+            else: output_row_t1k[gene + ' (2)'] = convert_options(row[5]) #t1k column 5: allele 2
     t1k_output_writer.writerow(output_row_t1k)
 
 ### Format OptiType ###
-#optitype combined output file
+#optitype formatted output file
 optitype_output_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/optitype-output.csv'
 optitype_output = open(optitype_output_path, 'w', newline='')
 optitype_output_writer = csv.DictWriter(optitype_output, fieldnames=header_optitype)
@@ -130,21 +133,17 @@ for sample in sample_names:
     for row in sample_reader:
         for allele in ['HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 'HLA-C', 'HLA-C (2)']:
             output_row_optitype[allele] = f'HLA-{row[allele]}'
-            # output_row_optitype[allele2] = f'HLA-{row[allele2]}'
 
     optitype_output_writer.writerow(output_row_optitype)
 
 ### Format SpecHLA ###
-#spechla combined output file
+#spechla formatted output file
 spechla_output_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/spechla-output.csv'
 spechla_output = open(spechla_output_path, 'w', newline='')
 spechla_output_writer = csv.DictWriter(spechla_output, fieldnames=header_spechla)
 spechla_output_writer.writeheader()
 
-#create empty output row for spechla
-output_row_spechla = {column: '' for column in header_spechla}
-
-#header of spechla output files (order is different in these files)
+#header of spechla output files (gene order is different in these files)
 spechla_fieldnames = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)', 
                     'HLA-C', 'HLA-C (2)', 'HLA-DPA1', 'HLA-DPA1 (2)', 'HLA-DPB1', 
                     'HLA-DPB1 (2)', 'HLA-DQA1', 'HLA-DQA1 (2)', 'HLA-DQB1', 'HLA-DQB1 (2)', 
@@ -152,6 +151,7 @@ spechla_fieldnames = ['sample_name', 'HLA-A', 'HLA-A (2)', 'HLA-B', 'HLA-B (2)',
 
 #extract spechla output
 for sample in sample_names:
+    output_row_spechla = {column: '' for column in header_spechla}
     output_row_spechla['sample_name'] = sample
     sample_path = f'/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output/{sample}/spechla//hla.result.txt'
     sample_open = open(sample_path, newline='')
@@ -162,10 +162,9 @@ for sample in sample_names:
         for allele in header_spechla[1:]:
             output_row_spechla[allele] = f'HLA-{row[allele]}' #add HLA-prefix
     spechla_output_writer.writerow(output_row_spechla)
-    output_row_spechla = {column: '' for column in header_spechla} #clear output row
 
 ### Format ArcasHLA ###
-#arcashla combined output file
+#arcashla formatted output file
 arcashla_output_path = '/exports/me-lcco-aml-hpc/cavanandel/HLA-typing/output-formatted/arcashla-output.csv'
 arcashla_output = open(arcashla_output_path, 'w')
 arcashla_output_writer = csv.DictWriter(arcashla_output, fieldnames=header_arcashla)
