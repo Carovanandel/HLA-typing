@@ -11,8 +11,7 @@
       --use-singularity --singularity-args ' --cleanenv --bind /tmp'
       --singularity-prefix '~/.singularity/cache/snakemake'
       --configfile tests/config.json
-      --config T1K_fasta=tests/data/sample1_hlaidx_rna_seq.fa
-      --config pepfile=tests/pep/samples.csv
+      --config T1K_fasta=tests/data/sample1_hlaidx_rna_seq.fa pepfile=tests/pep/samples.csv
       --snakefile Snakefile
       --until T1K seq2hla
   files:

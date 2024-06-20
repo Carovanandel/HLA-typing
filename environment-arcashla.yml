@@ -1,0 +1,25 @@
+name: arcashla
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - arcas-hla==0.6.0
+  - bedtools==2.31.1
+  - biopython==1.83
+  - coreutils==9.4
+  - git==2.43.0
+  - git-lfs==3.4.1
+  - kallisto==0.44.0
+  - numpy==1.26.4
+  - pandas==2.2.0
+  - pigz==2.8
+  - pip==24.0
+  - pyarrow==15.0.0
+  - pytest==8.0.0
+  - python==3.10.0
+  - samtools==1.19.2
+  - scipy==1.12.0
+  - peppy>=0.35
+  - pytest-workflow>=1.6.0
+  - snakemake-minimal=7.32
+  - snakefmt=0.10.0
