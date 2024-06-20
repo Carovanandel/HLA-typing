@@ -70,7 +70,8 @@ export PATH=~/miniforge3/envs/arcashla/bin:$PATH
 Currently, a bug in ArcasHLA prevents you from using the latest IMGT/HLA database version. Another bug prevents you from downloading older IMGT/HLA databases. See [pull request.](https://github.com/RabadanLab/arcasHLA/issues/133)
 Workaround: replace the ```~/miniforge3/envs/snakemake-arcas-hla/share/arcas-hla-0.6.0-0/dat``` folder with the ```arcas-hla-0.6.0-0/dat``` folder from this repository, which contains version 3.55.0 of the IMGT/HLA database
 ```bash
-mv arcas-hla-0.6.0-0/dat ~/miniforge3/envs/snakemake-arcas-hla/share/arcas-hla-0.6.0-0/dat
+rm -rf ~/miniforge3/envs/arcashla/share/arcas-hla-0.6.0-0/dat
+mv arcas-hla-0.6.0-0/dat ~/miniforge3/envs/arcashla/share/arcas-hla-0.6.0-0/dat
 ```
 
 The ArcasHLA snakemake rule can then be executed with this environment active, using:
